@@ -150,6 +150,9 @@ class ConnectionHandler(object):
 
         # Loads and caches the backend
         conn = self.load_backend(alias)
+        # TODO: Or maybe a lazy configure?
+        conn.configure_client()
+
         setattr(self._connections, alias, conn)
 
         return conn

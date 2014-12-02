@@ -7,7 +7,6 @@ class Base(object):
         self.alias = alias
         self._server = server
         self._indices = indices
-        self.configure_client()
 
     def configure_client(self):
         """Configures the ElasticSearch client."""
@@ -22,7 +21,7 @@ class Base(object):
         """
         indices = set()
 
-        for index in self._indices:
+        for index in self._indices.values():
             name = index['NAME']
             aliases = index['ALIASES']
 
@@ -36,4 +35,4 @@ class Base(object):
 
     @cached_property
     def index_names(self):
-        return list(set(index['NAME'] for index in self._indices))
+        return list(set(index['NAME'] for index in self._indices.values()))
