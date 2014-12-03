@@ -67,7 +67,7 @@ class ConnectionHandler(object):
 
         if self._servers == {}:
             self._servers = {
-                # Nothing requires for a default connection.
+                # Nothing is required for a default connection.
                 # Yeah, it works out of the box. Just magic.
                 DEFAULT_ES_ALIAS: {}
             }
@@ -111,22 +111,57 @@ class ConnectionHandler(object):
 
     def prepare_server_test_settings(self, alias):
         """Makes sure the test settings are available in `TEST`."""
-        # TODO: Prepare these settings, for real.
-        pass
+        try:
+            server = self.servers[alias]
+        except KeyError:
+            raise ConnectionDoesNotExist(alias)
+
+        # TODO: Add more than a simple `TEST` key.
+        # This will need to dig into ElasticSearch optimization stuff.
+        # Yay!
+        server.setdefault('TEST', {})
 
     def prepare_index_test_settings(self, alias):
         """Makes sure the test settings are available in `TEST`."""
         # TODO: Prepare these settings, for real.
-        pass
+        try:
+            index = self.indices[alias]
+        except KeyError:
+            raise IndexDoesNotExist(alias)
+
+        test_settings = index.setdefault('TEST', {})
+
+        # Handle the TEST's NAME
+        name = index['NAME']
+        test_name = test_settings.setdefault('NAME', '%s_test' % name)
+
+        if test_name == name:
+            raise ImproperlyConfigured(
+                'Index \'%s\' uses improperly the same NAME and TEST\'s NAME '
+                'settings: \'%s\'.' % (alias, name))
+
+        # Handle the TEST's ALIASES
+        aliases = index['ALIASES']
+        test_aliases = test_settings.setdefault('ALIASES',
+                                                ['%s_test' % alias_name
+                                                 for alias_name in aliases])
+
+        for test_alias_name in test_aliases:
+            if test_alias_name in aliases:
+                raise ImproperlyConfigured(
+                    'Index \'%s\' uses improperly the same index alias in '
+                    'ALIASES and in TEST\'s ALIASES settings: \'%s\'.'
+                    % (alias, test_alias_name))
 
     def get_server_indices(self, server):
         """Prepares and returns a given server's indices settings."""
-        aliases = server['ALIASES']
-        for alias in aliases:
+        indices = server['INDICES']
+
+        for alias in indices:
             self.ensure_index_defaults(alias)
             self.prepare_index_test_settings(alias)
 
-        return [self.indices[alias] for alias in aliases]
+        return [self.indices[alias] for alias in indices]
 
     def load_backend(self, alias):
         """Prepares and loads a backend for the given alias."""
