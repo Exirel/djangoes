@@ -9,12 +9,12 @@ class Base(object):
         self._indices = indices
 
     def configure_client(self):
-        """Configures the ElasticSearch client."""
+        """Configure the ElasticSearch client."""
         raise NotImplementedError
 
     @cached_property
     def indices(self):
-        """Builds the list of indices or aliases used to query ElasticSearch.
+        """Build the list of indices or aliases used to query ElasticSearch.
 
         This creates a list composed of index names or alias names. If an index
         defined aliases, these aliases will be used instead of its own name.

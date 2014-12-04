@@ -21,17 +21,11 @@ def load_backend(backend_name):
 
 
 class ConnectionDoesNotExist(KeyError):
-    msg_tpl = 'The connection \'%s\' doesn\'t exist'
-    def __init__(self, alias, *args, **kwargs):
-        KeyError.__init__(self, self.msg_tpl % alias, *args, **kwargs)
-        self.alias = alias
+    pass
 
 
 class IndexDoesNotExist(KeyError):
-    msg_tpl = 'The index \'%s\' doesn\'t exist'
-    def __init__(self, alias, *args, **kwargs):
-        KeyError.__init__(self, self.msg_tpl % alias, *args, **kwargs)
-        self.alias = alias
+    pass
 
 
 class ConnectionHandler(object):
@@ -88,7 +82,7 @@ class ConnectionHandler(object):
         return self._indices
 
     def ensure_server_defaults(self, alias):
-        """Puts the defaults into the settings dictionary for `alias`."""
+        """Put the defaults into the settings dictionary for `alias`."""
         try:
             server = self.servers[alias]
         except KeyError:
@@ -100,7 +94,7 @@ class ConnectionHandler(object):
         server.setdefault('INDICES', [])
 
     def ensure_index_defaults(self, alias):
-        """Puts the defaults into the settings dictionary for `alias`."""
+        """Put the defaults into the settings dictionary for `alias`."""
         try:
             index = self.indices[alias]
         except KeyError:
@@ -110,7 +104,7 @@ class ConnectionHandler(object):
         index.setdefault('ALIASES', [])
 
     def prepare_server_test_settings(self, alias):
-        """Makes sure the test settings are available in `TEST`."""
+        """Make sure the test settings are available in `TEST`."""
         try:
             server = self.servers[alias]
         except KeyError:
@@ -122,7 +116,7 @@ class ConnectionHandler(object):
         server.setdefault('TEST', {})
 
     def prepare_index_test_settings(self, alias):
-        """Makes sure the test settings are available in `TEST`."""
+        """Make sure the test settings are available in `TEST`."""
         # TODO: Prepare these settings, for real.
         try:
             index = self.indices[alias]
@@ -154,17 +148,24 @@ class ConnectionHandler(object):
                     % (alias, test_alias_name))
 
     def get_server_indices(self, server):
-        """Prepares and returns a given server's indices settings."""
+        """Prepare and return a given server's indices settings.
+
+        Do not validate if the given server is available in self.servers: it
+        is expected to find an `INDICES` key into `server` and that is all.
+
+        It is expected to find indices configured with the same name in
+        self.indices.
+        """
         indices = server['INDICES']
 
         for alias in indices:
             self.ensure_index_defaults(alias)
             self.prepare_index_test_settings(alias)
 
-        return [self.indices[alias] for alias in indices]
+        return {alias: self.indices[alias] for alias in indices}
 
     def load_backend(self, alias):
-        """Prepares and loads a backend for the given alias."""
+        """Prepare and load a backend for the given alias."""
         # Prepares the settings
         self.ensure_server_defaults(alias)
         self.prepare_server_test_settings(alias)

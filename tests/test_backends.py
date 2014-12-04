@@ -4,7 +4,7 @@ from djangoes.backends import Base
 
 
 class TestBase(TestCase):
-    """Makes assertions about the behavior of the bakends.Base class."""
+    """Make assertions about the behavior of the bakends.Base class."""
     def test_indices(self):
         test_indices = {
             'test_name_1': {
