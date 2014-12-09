@@ -5,6 +5,10 @@ from djangoes.backends import Base
 
 class TestBase(TestCase):
     """Make assertions about the behavior of the bakends.Base class."""
+
+    # Assertions on indices property
+    # ==============================
+
     def test_indices(self):
         test_indices = {
             'test_name_1': {
@@ -50,6 +54,9 @@ class TestBase(TestCase):
         backend = Base('test_backend', {}, test_indices)
 
         assert sorted(backend.indices) == ['alias1', 'alias2', 'index3']
+
+    # Assertions on index_names property
+    # ==================================
 
     def test_index_names(self):
         test_indices = {

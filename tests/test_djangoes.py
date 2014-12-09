@@ -4,7 +4,9 @@ from django.core.exceptions import ImproperlyConfigured
 
 from djangoes import (ConnectionHandler,
                       IndexDoesNotExist,
-                      ConnectionDoesNotExist)
+                      ConnectionDoesNotExist,
+                      load_backend)
+from djangoes.backends import Base
 
 
 class TestConnectionHandler(TestCase):
@@ -340,3 +342,162 @@ class TestConnectionHandler(TestCase):
         }
 
         assert indices == expected_indices
+
+    # Test backend loading
+    # ====================
+    # Backend loading takes the given settings to import a module and
+    # instantiate a subclass of djangoes.backends.Base.
+
+    def test_function_load_backend(self):
+        """Assert load_backend function imports and returns the given module.
+
+        An external function is used to import the module and does one simple
+        task: import a module and catch ImportError to raise a djangoes custom
+        error.
+
+        """
+        mod = load_backend('os')
+        assert hasattr(mod, 'path')
+
+        sub_mod = load_backend('os.path')
+        assert hasattr(sub_mod, 'isfile')
+
+        with self.assertRaises(ImproperlyConfigured) as raised:
+            load_backend('module.does.not.exist')
+
+        assert str(raised.exception) == '\n'.join(
+            ['\'module.does.not.exist\' isn\'t an available ElasticSearch backend.',
+             'Error was: No module named \'module\''])
+
+    def test_load_backend(self):
+        """Assert load_backend method loads the configured server engine."""
+        servers = {
+            'default': {
+                'ENGINE': 'tests.backend'
+            }
+        }
+        indices = {}
+        handler = ConnectionHandler(servers, indices)
+
+        result = handler.load_backend('default')
+
+        assert isinstance(result, Base)
+        assert result.alias == 'default'
+        assert result.indices == []
+        assert result.index_names == []
+
+    def test_load_backend_with_index(self):
+        servers = {
+            'default': {
+                'ENGINE': 'tests.backend',
+                'INDICES': ['index_1'],
+            }
+        }
+        indices = {
+            'index_1': {
+                'NAME': 'index_1',
+                'ALIASES': ['alias_1', 'alias_2'],
+            }
+        }
+        handler = ConnectionHandler(servers, indices)
+
+        result = handler.load_backend('default')
+
+        assert sorted(result.indices) == ['alias_1', 'alias_2']
+        assert result.index_names == ['index_1']
+
+    def test_load_backend_with_indices(self):
+        servers = {
+            'default': {
+                'ENGINE': 'tests.backend',
+                'INDICES': ['index_1', 'index_2'],
+            }
+        }
+        indices = {
+            'index_1': {
+                'NAME': 'index_1',
+                'ALIASES': ['alias_1', 'alias_2'],
+            },
+            'index_2': {
+                'NAME': 'index_2_name',
+            }
+        }
+        handler = ConnectionHandler(servers, indices)
+
+        result = handler.load_backend('default')
+
+        assert sorted(result.indices) == ['alias_1', 'alias_2', 'index_2_name']
+        assert sorted(result.index_names) == ['index_1', 'index_2_name']
+
+    # Test object and attributes manipulation
+    # =======================================
+
+    def test_iterable(self):
+        """Assertions about list behavior of ConnectionHandler."""
+        servers = {
+            'default': {},
+            'task': {},
+        }
+        indices = {}
+
+        handler = ConnectionHandler(servers, indices)
+
+        assert sorted(list(handler)) == ['default', 'task']
+
+    def test_items(self):
+        """Assertions about key:value behavior of ConnectionHandler."""
+        servers = {
+            'default': {
+                'ENGINE': 'tests.backend',
+                'INDICES': ['index_1'],
+            },
+        }
+        indices = {
+            'index_1': {},
+            'index_2': {}
+        }
+
+        handler = ConnectionHandler(servers, indices)
+
+        # Get the connection wrapper
+        wrapper = handler['default']
+        assert wrapper.indices == ['index_1']
+
+        # Change handler settings
+        handler.servers['default']['INDICES'] = ['index_2']
+
+        # The wrapper is not updated
+        wrapper = handler['default']
+        assert wrapper.indices == ['index_1']
+
+        # Delete the `default` connection 
+        del handler['default']
+
+        # The new wrapper now use the new index
+        wrapper = handler['default']
+        assert wrapper.indices == ['index_2']
+
+        # Also, set item works without control
+        handler['something'] = 'else'
+        assert handler['something'] == 'else'
+
+    def test_all(self):
+        """Assert all connection wrappers are returned."""
+        servers = {
+            'default': {
+                'ENGINE': 'tests.backend',
+            },
+            'task': {
+                'ENGINE': 'tests.backend'
+            }
+        }
+        indices = {}
+        handler = ConnectionHandler(servers, indices)
+
+        all_connections = handler.all()
+
+        assert len(all_connections) == 2
+        assert isinstance(all_connections[0], Base)
+        assert isinstance(all_connections[1], Base)
+
+        assert sorted([c.alias for c in all_connections]) == ['default', 'task']
