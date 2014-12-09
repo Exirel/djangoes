@@ -110,14 +110,11 @@ class ConnectionHandler(object):
         except KeyError:
             raise ConnectionDoesNotExist(alias)
 
-        # TODO: Add more than a simple `TEST` key.
-        # This will need to dig into ElasticSearch optimization stuff.
-        # Yay!
+        # TODO: Add more than a simple `TEST` key if needed.
         server.setdefault('TEST', {})
 
     def prepare_index_test_settings(self, alias):
         """Make sure the test settings are available in `TEST`."""
-        # TODO: Prepare these settings, for real.
         try:
             index = self.indices[alias]
         except KeyError:
