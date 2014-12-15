@@ -1,6 +1,7 @@
 from unittest.case import TestCase
 
 from django.core.exceptions import ImproperlyConfigured
+from django.test.utils import override_settings
 
 from djangoes import (ConnectionHandler,
                       IndexDoesNotExist,
@@ -21,7 +22,7 @@ class TestConnectionHandler(TestCase):
     # ==================================================
     # Makes assertions about the default behavior when nothing is configured,
     # or when very few information is given. Using djangoes should be as
-    # transparent as possible, in particular with the default behavior.
+    # transparent as possible, in particular with the default behavior.
 
     def test_empty(self):
         """Assert an empty configuration fallback on default values."""
@@ -68,6 +69,25 @@ class TestConnectionHandler(TestCase):
 
         assert handler.servers == {'default': {}}
         assert handler.indices == {}
+
+    # Test with django project settings
+    # =================================
+
+    def test_project_settings_by_default(self):
+        """Assert values come from the django project settings if not given."""
+        servers = {
+            'default': {},
+            'by_settings': {}
+        }
+        indices = {
+            'index_by_settings': {}
+        }
+        with override_settings(ES_SERVERS=servers, ES_INDICES=indices):
+            # No argument
+            handler = ConnectionHandler()
+            # Servers and indices are the one set in django settings.
+            assert handler.servers == servers
+            assert handler.indices == indices
 
     # Test improperly configured behaviors
     # ====================================
@@ -154,7 +174,7 @@ class TestConnectionHandler(TestCase):
     # Test prepare test settings
     # ==========================
 
-    # Prepare server
+    # Prepare server
 
     def test_empty_prepare_server_test_settings(self):
         """Assert prepare adds a TEST key in the defaul server's settings."""
@@ -190,7 +210,7 @@ class TestConnectionHandler(TestCase):
 
         assert str(raised.exception) == '%r' % 'index'
 
-    # Prepare index
+    # Prepare index
 
     def test_empty_prepare_index_test_settings(self):
         indices = {
@@ -345,7 +365,7 @@ class TestConnectionHandler(TestCase):
 
     # Test backend loading
     # ====================
-    # Backend loading takes the given settings to import a module and
+    # Backend loading takes the given settings to import a module and
     # instantiate a subclass of djangoes.backends.Base.
 
     def test_function_load_backend(self):
@@ -501,3 +521,40 @@ class TestConnectionHandler(TestCase):
         assert isinstance(all_connections[1], Base)
 
         assert sorted([c.alias for c in all_connections]) == ['default', 'task']
+
+
+class TestProxyConnectionHandler(TestCase):
+    def test_attributes(self):
+        # Local import to manipulate elements
+        from djangoes import connections, connection
+
+        connections._servers = {
+            'default': {
+                'ENGINE': 'tests.backend'
+            }
+        }
+        connections._indices = {}
+
+        # Existing attribute.
+        assert connection.alias == 'default'
+
+        # New attribute.
+        assert not hasattr(connection, 'new_attribute')
+
+        connections['default'].new_attribute = 'test_value'
+
+        assert hasattr(connection, 'new_attribute')
+        assert connection.new_attribute == 'test_value'
+
+        del connection.new_attribute
+
+        assert not hasattr(connection, 'new_attribute')
+        assert not hasattr(connections['default'], 'new_attribute')
+
+        connection.new_attribute = 'test_new_attribute_again'
+
+        assert hasattr(connection, 'new_attribute')
+        assert hasattr(connections['default'], 'new_attribute')
+
+        assert connection == connections['default']
+        assert not (connection != connections['default'])

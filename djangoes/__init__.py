@@ -204,3 +204,28 @@ class ConnectionHandler(object):
 
 
 connections = ConnectionHandler()
+
+
+class DefaultConnectionProxy(object):
+    """Proxy for the default ConnectionWrapper's attributes.
+
+    This class is based on django.db.DefaultConnectionProxy used for the
+    default database.
+    """
+    def __getattr__(self, item):
+        return getattr(connections[DEFAULT_ES_ALIAS], item)
+
+    def __setattr__(self, name, value):
+        return setattr(connections[DEFAULT_ES_ALIAS], name, value)
+
+    def __delattr__(self, name):
+        return delattr(connections[DEFAULT_ES_ALIAS], name)
+
+    def __eq__(self, other):
+        return connections[DEFAULT_ES_ALIAS] == other
+
+    def __ne__(self, other):
+        return connections[DEFAULT_ES_ALIAS] != other
+
+
+connection = DefaultConnectionProxy()

@@ -1,25 +1,26 @@
 from elasticsearch.client import Elasticsearch, Transport
 
-from . import Base
+from . import Base, MetaClientBase
+
+
+class MetaClient(MetaClientBase):
+    pass
 
 
 class ConnectionWrapper(Base):
     """Connection wrapper based on the ElasticSearch official library."""
     transport_class = Transport
+    meta_client_class = MetaClient
 
     def __init__(self, alias, server, indices):
         Base.__init__(self, alias, server, indices)
 
     def configure_client(self):
-        hosts = self.server['HOSTS']
-        params = self.server['PARAMS']
+        hosts = self._server['HOSTS']
+        params = self._server['PARAMS']
 
         self._es = Elasticsearch(
             hosts, transport_class=self.transport_class, **params)
-
-    def __getattribute__(self, attr):
-        """Proxy for attributes and methods to the underlying ES client."""
-        return getattr(self._es, attr)
 
     # Query methods 
     # =============

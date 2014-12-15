@@ -1,10 +1,10 @@
 from unittest.case import TestCase
 
-from djangoes.backends import Base
+from djangoes.backends import Base, MetaClientBase
 
 
 class TestBase(TestCase):
-    """Make assertions about the behavior of the bakends.Base class."""
+    """Make assertions about the behavior of bakends.Base."""
 
     # Assertions on indices property
     # ==============================
@@ -110,3 +110,21 @@ class TestBase(TestCase):
 
         with self.assertRaises(NotImplementedError):
             backend.configure_client()
+
+
+class TestMetaClientBase(TestCase):
+    """Make assertions about the behavior of backends.MetaClientBase."""
+    def test_attributes(self):
+        meta_client = MetaClientBase(None)
+
+        with self.assertRaises(AttributeError):
+            meta_client.cluster
+
+        with self.assertRaises(AttributeError):
+            meta_client.indices
+
+        with self.assertRaises(AttributeError):
+            meta_client.snapshot
+
+        with self.assertRaises(AttributeError):
+            meta_client.nodes
