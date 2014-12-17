@@ -40,6 +40,9 @@ htmlcov/
 nosetests.xml
 coverage.xml
 
+# Pylint report
+pylint.html
+
 # Translations
 *.mo
 *.pot
