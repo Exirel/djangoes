@@ -11,20 +11,27 @@ DEFAULT_ES_ALIAS = 'default'
 
 
 def load_backend(backend_name):
+    """Import the given `backend_name` module and return it.
+
+    This is a convenient function that raises a specific error message when
+    the import of the `backend_name` module raises an ImportError.
+    """
     try:
         return import_module(backend_name)
     except ImportError as e_user:
         error_msg = ("%r isn't an available ElasticSearch backend.\n"
-                     "Error was: %s" % 
+                     "Error was: %s" %
                      (backend_name, e_user))
         raise ImproperlyConfigured(error_msg)
 
 
 class ConnectionDoesNotExist(KeyError):
+    """Specific type of KeyError when a connection does not exist."""
     pass
 
 
 class IndexDoesNotExist(KeyError):
+    """Specific type of KeyError when an index does not exist."""
     pass
 
 
@@ -55,6 +62,20 @@ class ConnectionHandler(object):
 
     @cached_property
     def servers(self):
+        """Dict of servers configuration.
+
+        The `servers` attribute come from the initial `servers` parameter used
+        to instantiate the connections handler.
+
+        Each key is supposed to be the alias name to a server configuration,
+        giving an engine, a list of hosts, and other backend parameters.
+
+        If no configurations is provided, it will use the django project
+        setting `ES_SERVERS` as a fallback.
+
+        If the default configuration does not exist, a ImproperlyConfigured is
+        raised.
+        """
         if self._servers is None:
             # ES_SERVERS is not required.
             self._servers = getattr(settings, 'ES_SERVERS', {})
@@ -75,6 +96,18 @@ class ConnectionHandler(object):
 
     @cached_property
     def indices(self):
+        """Dict of indices configuration.
+
+        The `indices` attribute come from the initial `indices` parameter used
+        to instantiate the connections handler.
+
+        Each key is supposed to be the alias name to an indices configuration,
+        giving a list of index names and other parameters, such as index
+        aliases.
+
+        If no configurations is provided, it will use the django project
+        setting `ES_INDICES` as a fallback.
+        """
         if self._indices is None:
             # ES_INDICES is not required.
             self._indices = getattr(settings, 'ES_INDICES', {})
@@ -200,6 +233,11 @@ class ConnectionHandler(object):
         return iter(self.servers)
 
     def all(self):
+        """Return all configured connection object.
+
+        It is a shortcut method to get all connections instead of manually
+        doing a list-comprehension each time all connections are needed.
+        """
         return [self[alias] for alias in self]
 
 

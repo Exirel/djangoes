@@ -7,7 +7,7 @@ from djangoes import (ConnectionHandler,
                       IndexDoesNotExist,
                       ConnectionDoesNotExist,
                       load_backend)
-from djangoes.backends import Base
+from djangoes.backends import Base, elasticsearch
 
 
 class TestConnectionHandler(TestCase):
@@ -448,6 +448,23 @@ class TestConnectionHandler(TestCase):
 
         assert sorted(result.indices) == ['alias_1', 'alias_2', 'index_2_name']
         assert sorted(result.index_names) == ['index_1', 'index_2_name']
+
+    # Test loading of backends.elasticsearch
+    # ======================================
+
+    def test_loading_elasticsearch(self):
+        servers = {
+            'default': {
+                'ENGINE': 'djangoes.backends.elasticsearch'
+            }
+        }
+        indices = {}
+
+        handler = ConnectionHandler(servers, indices)
+
+        result = handler.load_backend('default')
+
+        assert isinstance(result, elasticsearch.ConnectionWrapper)
 
     # Test object and attributes manipulation
     # =======================================
