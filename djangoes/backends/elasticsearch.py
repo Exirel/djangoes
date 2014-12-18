@@ -4,13 +4,10 @@ from . import Base, MetaClientBase
 
 
 class MetaClient(MetaClientBase):
-    """Meta client class for the elasticsearch backend.
+    """Meta client class for the `elasticsearch` backend.
 
-    Used as a proxy to the internal ElasticSearch client's attributes.
+    Act as a proxy to the internal ElasticSearch client's attributes.
     """
-    def __init__(self, conn):
-        super(MetaClient, self).__init__(conn)
-
     @property
     def indices(self):
         """Access to meta API about indices.
@@ -54,6 +51,14 @@ class ConnectionWrapper(Base):
         self.client = None
 
     def configure_client(self):
+        """Instantiate and configure the ElasticSearch client.
+
+        It simply takes the given HOSTS list and uses PARAMS as the keyword
+        arguments of the Elasticsearch class.
+
+        The client's transport_class is given by the class attribute
+        `transport_class`.
+        """
         hosts = self.server['HOSTS']
         params = self.server['PARAMS']
 

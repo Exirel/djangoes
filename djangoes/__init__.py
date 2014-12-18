@@ -6,7 +6,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 
 
-#  Name of the default ElasticSearch server connection
+# Name of the default ElasticSearch server connection
 DEFAULT_ES_ALIAS = 'default'
 
 
@@ -143,8 +143,8 @@ class ConnectionHandler(object):
         except KeyError:
             raise ConnectionDoesNotExist(alias)
 
-        # TODO: Add more than a simple `TEST` key if needed.
-        server.setdefault('TEST', {})
+        test_settings = server.setdefault('TEST', {})
+        test_settings.setdefault('INDICES', [])
 
     def prepare_index_test_settings(self, alias):
         """Make sure the test settings are available in `TEST`."""

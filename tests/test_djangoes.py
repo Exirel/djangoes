@@ -189,7 +189,9 @@ class TestConnectionHandler(TestCase):
 
         default_server = handler.servers['default']
 
-        expected_test_server = {}
+        expected_test_server = {
+            'INDICES': []
+        }
 
         assert 'TEST' in default_server
         assert default_server['TEST'] == expected_test_server

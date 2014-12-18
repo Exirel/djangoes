@@ -61,8 +61,7 @@ class Base(object):
         """Configure the ElasticSearch client."""
         raise NotImplementedError
 
-    @cached_property
-    def indices(self):
+    def get_indices(self):
         """Build the list of indices or aliases used to query ElasticSearch.
 
         This creates a list composed of index names or alias names. If an index
@@ -82,8 +81,7 @@ class Base(object):
 
         return list(indices)
 
-    @cached_property
-    def index_names(self):
+    def get_index_names(self):
         """Build and return the list of index names.
 
         This create a list of unique index names, without using their aliases.
@@ -95,3 +93,13 @@ class Base(object):
                 index['NAME'] for index in self.server_indices.values()
             )
         )
+
+    @cached_property
+    def indices(self):
+        """Cached property upon get_indices method."""
+        return self.get_indices()
+
+    @cached_property
+    def index_names(self):
+        """Cached property upon get_index_names method."""
+        return self.get_index_names()
