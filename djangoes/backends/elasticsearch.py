@@ -57,6 +57,7 @@ class ConnectionWrapper(Base):
         hosts = self.server['HOSTS']
         params = self.server['PARAMS']
 
+        #pylint: disable=star-args
         self.client = Elasticsearch(
             hosts, transport_class=self.transport_class, **params)
 

@@ -241,7 +241,7 @@ class ConnectionHandler(object):
         return [self[alias] for alias in self]
 
 
-connections = ConnectionHandler()
+connections = ConnectionHandler()  #pylint: disable=invalid-name
 
 
 class DefaultConnectionProxy(object):
@@ -266,4 +266,4 @@ class DefaultConnectionProxy(object):
         return connections[DEFAULT_ES_ALIAS] != other
 
 
-connection = DefaultConnectionProxy()
+connection = DefaultConnectionProxy()  #pylint: disable=invalid-name
