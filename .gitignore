@@ -59,4 +59,5 @@ target/
 # IDE
 .project
 .pydevproject
+.settings/
 
