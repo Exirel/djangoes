@@ -131,10 +131,12 @@ class ConnectionWrapper(Base):
     # automatically uses the configured names (indices and/or aliases).
 
     def create(self, doc_type, body, doc_id=None, **kwargs):
-        return self.client.create(self.indices, doc_type, body, doc_id, **kwargs)
+        return self.client.create(
+            self.indices, doc_type, body, doc_id, **kwargs)
 
     def index(self, doc_type, body, doc_id=None, **kwargs):
-        return self.client.index(self.indices, doc_type, body, doc_id, **kwargs)
+        return self.client.index(
+            self.indices, doc_type, body, doc_id, **kwargs)
 
     def exists(self, doc_id, doc_type='_all', **kwargs):
         return self.client.exists(self.indices, doc_id, doc_type, **kwargs)
@@ -146,7 +148,8 @@ class ConnectionWrapper(Base):
         return self.client.get_source(self.indices, doc_id, doc_type, **kwargs)
 
     def update(self, doc_type, doc_id, body=None, **kwargs):
-        return self.client.update(self.indices, doc_type, doc_id, body, **kwargs)
+        return self.client.update(
+            self.indices, doc_type, doc_id, body, **kwargs)
 
     def search(self, doc_type=None, body=None, **kwargs):
         return self.client.search(self.indices, doc_type, body, **kwargs)
@@ -155,10 +158,12 @@ class ConnectionWrapper(Base):
         return self.client.search_shards(self.indices, doc_type, **kwargs)
 
     def search_template(self, doc_type=None, body=None, **kwargs):
-        return self.client.search_template(self.indices, doc_type, body, **kwargs)
+        return self.client.search_template(
+            self.indices, doc_type, body, **kwargs)
 
     def explain(self, doc_type, doc_id, body=None, **kwargs):
-        return self.client.explain(self.indices, doc_type, doc_id, body, **kwargs)
+        return self.client.explain(
+            self.indices, doc_type, doc_id, body, **kwargs)
 
     def delete(self, doc_type, doc_id, **kwargs):
         return self.client.delete(self.indices, doc_type, doc_id, **kwargs)
@@ -167,22 +172,26 @@ class ConnectionWrapper(Base):
         return self.client.count(self.indices, doc_type, body, **kwargs)
 
     def delete_by_query(self, doc_type=None, body=None, **kwargs):
-        return self.client.delete_by_query(self.indices, doc_type, body, **kwargs)
+        return self.client.delete_by_query(
+            self.indices, doc_type, body, **kwargs)
 
     def suggest(self, body, params=None):
         return self.client.suggest(body, self.indices, params)
 
     def percolate(self, doc_type, doc_id=None, body=None, **kwargs):
-        return self.client.percolate(self.indices, doc_type, doc_id, body, **kwargs)
+        return self.client.percolate(
+            self.indices, doc_type, doc_id, body, **kwargs)
 
     def count_percolate(self, doc_type, doc_id=None, body=None, **kwargs):
-        return self.client.count_percolate(self.indices, doc_type, doc_id, body, **kwargs)
+        return self.client.count_percolate(
+            self.indices, doc_type, doc_id, body, **kwargs)
 
     def mlt(self, doc_type, doc_id, body=None, **kwargs):
         return self.client.mlt(self.indices, doc_type, doc_id, body, **kwargs)
 
     def termvector(self, doc_type, doc_id, body=None, **kwargs):
-        return self.client.termvector(self.indices, doc_type, doc_id, body, **kwargs)
+        return self.client.termvector(
+            self.indices, doc_type, doc_id, body, **kwargs)
 
     def mtermvectors(self, doc_type=None, body=None, **kwargs):
         return self.client.mtermvectors(self.indices, doc_type, body, **kwargs)
