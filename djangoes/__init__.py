@@ -6,6 +6,9 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 
 
+__version__ = '0.1.0'
+
+
 # Name of the default ElasticSearch server connection
 DEFAULT_ES_ALIAS = 'default'
 
@@ -216,7 +219,6 @@ class ConnectionHandler(object):
 
         # Loads and caches the backend
         conn = self.load_backend(alias)
-        # TODO: Or maybe a lazy configure?
         conn.configure_client()
 
         setattr(self._connections, alias, conn)
