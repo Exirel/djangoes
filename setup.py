@@ -24,7 +24,7 @@ classifiers = [
 
 setup(
     name="djangoes",
-    version="0.1.2",
+    version="0.1.3",
     packages=find_packages(exclude=('tests',)),
 
     # metadata for upload to PyPI
