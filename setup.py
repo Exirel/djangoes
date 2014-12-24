@@ -24,13 +24,8 @@ classifiers = [
 
 setup(
     name="djangoes",
-    version="0.1.1",
+    version="0.1.2",
     packages=find_packages(exclude=('tests',)),
-
-    install_requires=[
-        'django>=1.6',
-        'elasticsearch>=1.2'
-    ],
 
     # metadata for upload to PyPI
     author="Florian Strzelecki",

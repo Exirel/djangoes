@@ -6,7 +6,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 
 # Name of the default ElasticSearch server connection
