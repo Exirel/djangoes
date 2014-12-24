@@ -11,10 +11,7 @@ def setup_djangoes():
     """
     from djangoes import connections
 
-    for alias in connections:
-        # Get the connection object.
-        conn = connections[alias]
-
+    for conn in connections.all():
         server_test_indices = conn.server['TEST']['INDICES']
         if server_test_indices:
             # Update list of indices.
@@ -28,7 +25,7 @@ def setup_djangoes():
             raise RuntimeError(
                 'Improperly configured settings for ElasticSearch \'%s\' '
                 'connection: either configure a list of indices or a list of '
-                'indices for testing purpose.' % alias)
+                'indices for testing purpose.' % conn.alias)
 
         # Replace each index by its test settings.
         for indices in conn.server_indices.values():

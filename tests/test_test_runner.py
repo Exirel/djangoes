@@ -7,7 +7,7 @@ from django.test.utils import override_settings
 from djangoes.test.runner import DiscoverRunner, setup_djangoes
 
 
-class TestRunnerFunctions(TestCase):
+class TestSetupDjangoesFunctions(TestCase):
     def test_setup_elasticsearch(self):
         """Assert indices and index names are replaced by test values."""
         servers = {
@@ -74,7 +74,8 @@ class TestRunnerFunctions(TestCase):
         """Assert tests can not be set up when settings are invalid.
 
         Each server connection must provide either a list of indices, or a test
-        settings with a list of indices to use for tests."""
+        settings with a list of indices to use for tests.
+        """
         servers = {
             'default': {
                 'ENGINE': 'tests.backend',
@@ -94,6 +95,81 @@ class TestRunnerFunctions(TestCase):
 
             with self.assertRaises(RuntimeError):
                 setup_djangoes()
+
+    def test_setup_elasticsearch_reuse_index(self):
+        """Assert indices and index names are replaced by test values.
+
+        In this case, we want to be sure that two connections can access the
+        same index, and that the configuration of one won't cause any issue.
+        """
+        servers = {
+            'default': {
+                'ENGINE': 'tests.backend',
+                'INDICES': ['index']
+            },
+            'copy' : {
+                'ENGINE': 'tests.backend',
+                'INDICES': ['index']
+            }
+        }
+        indices = {
+            'index': {
+                'NAME': 'index_prod',
+                'TEST': {
+                    'NAME': 'index_test'
+                }
+            },
+        }
+
+        with override_settings(ES_SERVERS=servers, ES_INDICES=indices):
+            from djangoes import connections
+
+            setup_djangoes()
+
+            conn = connections['default']
+            conn_copy = connections['copy']
+
+            expected_indices = sorted(['index_test'])
+            assert sorted(conn.indices) == expected_indices
+            assert sorted(conn_copy.indices) == expected_indices
+
+    def test_setup_elasticsearch_global_override_reuse_index(self):
+        """Assert server test settings can override globally test indices."""
+        servers = {
+            'default': {
+                'ENGINE': 'tests.backend',
+                'INDICES': ['index'],
+                'TEST': {
+                    'INDICES': ['override']
+                }
+            },
+            'copy': {
+                'ENGINE': 'tests.backend',
+                'INDICES': ['index'],
+                'TEST': {
+                    'INDICES': ['override']
+                }
+            }
+        }
+        indices = {
+            'index': {
+                'NAME': 'index_prod',
+            },
+            'override': {
+                'NAME': 'overridden',
+            }
+        }
+
+        with override_settings(ES_SERVERS=servers, ES_INDICES=indices):
+            from djangoes import connections
+
+            setup_djangoes()
+            conn = connections['default']
+            conn_copy = connections['copy']
+
+            expected_indices = sorted(['overridden_test'])
+            assert conn.indices == expected_indices
+            assert conn_copy.indices == expected_indices
 
 
 class TestDiscoverRunner(TestCase):

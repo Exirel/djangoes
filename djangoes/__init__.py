@@ -195,7 +195,7 @@ class ConnectionHandler(object):
             self.ensure_index_defaults(alias)
             self.prepare_index_test_settings(alias)
 
-        return {alias: self.indices[alias] for alias in indices}
+        return {alias: self.indices[alias].copy() for alias in indices}
 
     def load_backend(self, alias):
         """Prepare and load a backend for the given alias."""
