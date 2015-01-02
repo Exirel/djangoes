@@ -72,29 +72,29 @@ class ConnectionWrapper(Base):
     # related queries, such as "ping" or "info". The connection wrapper act
     # for them as a proxy.
 
-    def ping(self, params=None):
-        return self.client.ping(params)
+    def ping(self, **kwargs):
+        return self.client.ping(**kwargs)
 
-    def info(self, params=None):
-        return self.client.info(params)
+    def info(self, **kwargs):
+        return self.client.info(**kwargs)
 
-    def put_script(self, lang, script_id, body, params=None):
-        return self.client.put_script(lang, script_id, body, params)
+    def put_script(self, lang, script_id, body, **kwargs):
+        return self.client.put_script(lang, script_id, body, **kwargs)
 
-    def get_script(self, lang, script_id, params=None):
-        return self.client.get_script(lang, script_id, params)
+    def get_script(self, lang, script_id, **kwargs):
+        return self.client.get_script(lang, script_id, **kwargs)
 
-    def delete_script(self, lang, script_id, params=None):
-        return self.client.delete_script(lang, script_id, params)
+    def delete_script(self, lang, script_id, **kwargs):
+        return self.client.delete_script(lang, script_id, **kwargs)
 
-    def put_template(self, template_id, body, params=None):
-        return self.client.put_template(template_id, body, params)
+    def put_template(self, template_id, body, **kwargs):
+        return self.client.put_template(template_id, body, **kwargs)
 
-    def get_template(self, template_id, body=None, params=None):
-        return self.client.get_template(template_id, body, params)
+    def get_template(self, template_id, body=None, **kwargs):
+        return self.client.get_template(template_id, body, **kwargs)
 
-    def delete_template(self, template_id=None, params=None):
-        return self.client.delete_template(template_id, params)
+    def delete_template(self, template_id=None, **kwargs):
+        return self.client.delete_template(template_id, **kwargs)
 
     # Bulk methods
     # ============
@@ -102,27 +102,27 @@ class ConnectionWrapper(Base):
     # As it makes sense to not give an index, developers are free to use these
     # as they want, as long as they are careful.
 
-    def mget(self, body, index=None, doc_type=None, params=None):
-        return self.client.mget(body, index, doc_type, params)
+    def mget(self, body, index=None, doc_type=None, **kwargs):
+        return self.client.mget(body, index, doc_type, **kwargs)
 
-    def bulk(self, body, index=None, doc_type=None, params=None):
-        return self.client.bulk(body, index, doc_type, params)
+    def bulk(self, body, index=None, doc_type=None, **kwargs):
+        return self.client.bulk(body, index, doc_type, **kwargs)
 
-    def msearch(self, body, index=None, doc_type=None, params=None):
-        return self.client.msearch(body, index, doc_type, params)
+    def msearch(self, body, index=None, doc_type=None, **kwargs):
+        return self.client.msearch(body, index, doc_type, **kwargs)
 
-    def mpercolate(self, body, index=None, doc_type=None, params=None):
-        return self.client.mpercolate(body, index, doc_type, params)
+    def mpercolate(self, body, index=None, doc_type=None, **kwargs):
+        return self.client.mpercolate(body, index, doc_type, **kwargs)
 
     # Scroll methods
     # ==============
     # The underlying client does not require an index to perform scroll.
 
-    def scroll(self, scroll_id, params=None):
-        return self.client.scroll(scroll_id, params)
+    def scroll(self, scroll_id, **kwargs):
+        return self.client.scroll(scroll_id, **kwargs)
 
-    def clear_scroll(self, scroll_id, body=None, params=None):
-        return self.client.clear_scroll(scroll_id, body, params)
+    def clear_scroll(self, scroll_id, body=None, **kwargs):
+        return self.client.clear_scroll(scroll_id, body, **kwargs)
 
     # Query methods
     # =============
@@ -175,8 +175,8 @@ class ConnectionWrapper(Base):
         return self.client.delete_by_query(
             self.indices, doc_type, body, **kwargs)
 
-    def suggest(self, body, params=None):
-        return self.client.suggest(body, self.indices, params)
+    def suggest(self, body, **kwargs):
+        return self.client.suggest(body, self.indices, **kwargs)
 
     def percolate(self, doc_type, doc_id=None, body=None, **kwargs):
         return self.client.percolate(
@@ -199,8 +199,8 @@ class ConnectionWrapper(Base):
     def benchmark(self, doc_type=None, body=None, **kwargs):
         return self.client.benchmark(self.indices, doc_type, body, **kwargs)
 
-    def abort_benchmark(self, name=None, params=None):
-        return self.client.abort_benchmark(name, params)
+    def abort_benchmark(self, name=None, **kwargs):
+        return self.client.abort_benchmark(name, **kwargs)
 
     def list_benchmarks(self, doc_type=None, **kwargs):
         return self.client.list_benchmarks(self.indices, doc_type, **kwargs)
