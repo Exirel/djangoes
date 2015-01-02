@@ -1,7 +1,7 @@
 """Utility functions for testing purpose with ``djangoes``."""
 
 def setup_djangoes():
-    """Setup ElasticSearch connections with `̀ djangoes`̀  for testing purpose.
+    """Setup ElasticSearch connections with ``djangoes`` for testing purpose.
 
     When testing with ElasticSearch, used indices must not be the same as
     the one used for live settings, ie. tests must use the TEST settings.

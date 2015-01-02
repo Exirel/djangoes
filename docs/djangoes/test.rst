@@ -4,9 +4,17 @@ test
 
 .. automodule:: djangoes.test
 
-Runner
+runner
 ======
 
 .. automodule:: djangoes.test.runner
 
-.. autofunction:: djangoes.test.runner.setup_djangoes
+.. autoclass:: djangoes.test.runner.DiscoverRunner
+   :members:
+
+utils
+=====
+
+.. automodule:: djangoes.test.utils
+
+.. autofunction:: djangoes.test.utils.setup_djangoes
