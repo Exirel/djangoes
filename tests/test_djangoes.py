@@ -39,7 +39,7 @@ class TestConnectionHandler(TestCase):
         """Assert the ensured default configuration is acceptable as input."""
         servers = {
             'default': {
-                'ENGINE': 'djangoes.backends.elasticsearch',
+                'ENGINE': 'djangoes.backends.elasticsearch.SimpleHttpBackend',
                 'HOSTS': [],
                 'PARAMS': {},
                 'INDICES': []
@@ -104,7 +104,7 @@ class TestConnectionHandler(TestCase):
             # A simple call to servers must raise.
             handler.servers
 
-        assert str(raised.exception) == 'You must define a \'default\' ElasticSearch server'
+        assert str(raised.exception) == "You must define a 'default' ElasticSearch server"
 
     # Test ensure default values
     # ==========================
@@ -119,7 +119,7 @@ class TestConnectionHandler(TestCase):
         default_server = handler.servers['default']
 
         expected_server = {
-            'ENGINE': 'djangoes.backends.elasticsearch',
+            'ENGINE': 'djangoes.backends.elasticsearch.SimpleHttpBackend',
             'HOSTS': [],
             'PARAMS': {},
             'INDICES': []
@@ -180,7 +180,7 @@ class TestConnectionHandler(TestCase):
         """Assert prepare adds a TEST key in the defaul server's settings."""
         servers = {
             'default': {
-                'ENGINE': 'djangoes.backends.elasticsearch'
+                'ENGINE': 'djangoes.backends.elasticsearch.SimpleHttpBackend'
             }
         }
 
@@ -200,7 +200,7 @@ class TestConnectionHandler(TestCase):
         """Assert raise when the argument given is not a configured server."""
         servers = {
             'default': {
-                'ENGINE': 'djangoes.backends.elasticsearch'
+                'ENGINE': 'djangoes.backends.elasticsearch.SimpleHttpBackend'
             }
         }
         indices = {}
@@ -371,31 +371,39 @@ class TestConnectionHandler(TestCase):
     # instantiate a subclass of djangoes.backends.Base.
 
     def test_function_load_backend(self):
-        """Assert load_backend function imports and returns the given module.
+        """Assert load_backend function imports and returns the given path.
 
-        An external function is used to import the module and does one simple
-        task: import a module and catch ImportError to raise a djangoes custom
-        error.
-
+        An external function is used to import a module attribute from an
+        import path: it extracts the module import path and the attribute name,
+        then it imports the module and get its attribute, catching
+        ``ImportError`` and ``AttributeError`` to raise a djangoes custom error
+        instead of basic errors.
         """
-        mod = load_backend('os')
-        assert hasattr(mod, 'path')
+        datetime_class = load_backend('datetime.datetime')
+        assert hasattr(datetime_class, 'now')
 
-        sub_mod = load_backend('os.path')
-        assert hasattr(sub_mod, 'isfile')
+        isfile_function = load_backend('os.path.isfile')
+        assert type(isfile_function) == type(lambda x: x)
 
         with self.assertRaises(ImproperlyConfigured) as raised:
             load_backend('module.does.not.exist')
 
         assert str(raised.exception) == '\n'.join(
-            ['\'module.does.not.exist\' isn\'t an available ElasticSearch backend.',
-             'Error was: No module named \'module\''])
+            ["'module.does.not.exist' isn't an available ElasticSearch backend.",
+             "Error was: No module named 'module'"])
+
+        with self.assertRaises(ImproperlyConfigured) as raised:
+            load_backend('os.path.not_exist')
+
+        assert str(raised.exception) == '\n'.join(
+            ["'os.path.not_exist' isn't an available ElasticSearch backend.",
+             "Error was: 'module' object has no attribute 'not_exist'"])
 
     def test_load_backend(self):
         """Assert load_backend method loads the configured server engine."""
         servers = {
             'default': {
-                'ENGINE': 'tests.backend'
+                'ENGINE': 'tests.backend.ConnectionWrapper'
             }
         }
         indices = {}
@@ -411,7 +419,7 @@ class TestConnectionHandler(TestCase):
     def test_load_backend_with_index(self):
         servers = {
             'default': {
-                'ENGINE': 'tests.backend',
+                'ENGINE': 'tests.backend.ConnectionWrapper',
                 'INDICES': ['index_1'],
             }
         }
@@ -431,7 +439,7 @@ class TestConnectionHandler(TestCase):
     def test_load_backend_with_indices(self):
         servers = {
             'default': {
-                'ENGINE': 'tests.backend',
+                'ENGINE': 'tests.backend.ConnectionWrapper',
                 'INDICES': ['index_1', 'index_2'],
             }
         }
@@ -457,7 +465,7 @@ class TestConnectionHandler(TestCase):
     def test_loading_elasticsearch(self):
         servers = {
             'default': {
-                'ENGINE': 'djangoes.backends.elasticsearch'
+                'ENGINE': 'djangoes.backends.elasticsearch.SimpleHttpBackend'
             }
         }
         indices = {}
@@ -466,7 +474,7 @@ class TestConnectionHandler(TestCase):
 
         result = handler.load_backend('default')
 
-        assert isinstance(result, elasticsearch.ConnectionWrapper)
+        assert isinstance(result, elasticsearch.SimpleHttpBackend)
 
     # Test object and attributes manipulation
     # =======================================
@@ -487,7 +495,7 @@ class TestConnectionHandler(TestCase):
         """Assertions about key:value behavior of ConnectionHandler."""
         servers = {
             'default': {
-                'ENGINE': 'tests.backend',
+                'ENGINE': 'tests.backend.ConnectionWrapper',
                 'INDICES': ['index_1'],
             },
         }
@@ -524,10 +532,10 @@ class TestConnectionHandler(TestCase):
         """Assert all connection wrappers are returned."""
         servers = {
             'default': {
-                'ENGINE': 'tests.backend',
+                'ENGINE': 'tests.backend.ConnectionWrapper',
             },
             'task': {
-                'ENGINE': 'tests.backend'
+                'ENGINE': 'tests.backend.ConnectionWrapper'
             }
         }
         indices = {}
@@ -549,7 +557,7 @@ class TestProxyConnectionHandler(TestCase):
 
         connections._servers = {
             'default': {
-                'ENGINE': 'tests.backend'
+                'ENGINE': 'tests.backend.ConnectionWrapper'
             }
         }
         connections._indices = {}

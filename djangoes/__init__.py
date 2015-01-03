@@ -1,3 +1,8 @@
+"""The djangoes package contains a simple way to integrate ElasticSearch.
+
+This package mimics the behavior of the Django database configuration layer,
+using project settings and a global connections handler.
+"""
 from importlib import import_module
 from threading import local
 
@@ -6,25 +11,29 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 
 
-__version__ = '0.1.4'
+__version__ = '0.2.0a1'
 
 
 # Name of the default ElasticSearch server connection
 DEFAULT_ES_ALIAS = 'default'
 
 
-def load_backend(backend_name):
-    """Import the given `backend_name` module and return it.
+def load_backend(backend_class_path):
+    """Import the given `backend_class_path` class and return it.
 
     This is a convenient function that raises a specific error message when
-    the import of the `backend_name` module raises an ImportError.
+    the import of the `backend_class_path` raises an ImportError or an
+    AttributeError.
     """
+    parts = backend_class_path.split('.')
+    backend_module, backend_class = '.'.join(parts[:-1]), parts[-1]
+
     try:
-        return import_module(backend_name)
-    except ImportError as e_user:
+        return getattr(import_module(backend_module), backend_class)
+    except (AttributeError, ImportError) as e_user:
         error_msg = ("%r isn't an available ElasticSearch backend.\n"
                      "Error was: %s" %
-                     (backend_name, e_user))
+                     (backend_class_path, e_user))
         raise ImproperlyConfigured(error_msg)
 
 
@@ -124,7 +133,8 @@ class ConnectionHandler(object):
         except KeyError:
             raise ConnectionDoesNotExist(alias)
 
-        server.setdefault('ENGINE', 'djangoes.backends.elasticsearch')
+        server.setdefault(
+            'ENGINE', 'djangoes.backends.elasticsearch.SimpleHttpBackend')
         server.setdefault('HOSTS', [])
         server.setdefault('PARAMS', {})
         server.setdefault('INDICES', [])
@@ -208,9 +218,9 @@ class ConnectionHandler(object):
         indices = self.get_server_indices(server)
 
         # Loads the backend
-        backend = load_backend(server['ENGINE'])
+        backend_class = load_backend(server['ENGINE'])
 
-        return backend.ConnectionWrapper(alias, server, indices)
+        return backend_class(alias, server, indices)
 
     def __getitem__(self, alias):
         if hasattr(self._connections, alias):

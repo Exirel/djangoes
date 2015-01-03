@@ -41,13 +41,13 @@ class MetaClient(MetaClientBase):
         return self.conn.client.snapshot
 
 
-class ConnectionWrapper(Base):
+class SimpleHttpBackend(Base):
     """Connection wrapper based on the ElasticSearch official library."""
     transport_class = Transport
     meta_client_class = MetaClient
 
     def __init__(self, alias, server, indices):
-        super(ConnectionWrapper, self).__init__(alias, server, indices)
+        super(SimpleHttpBackend, self).__init__(alias, server, indices)
         self.client = None
 
     def configure_client(self):

@@ -12,7 +12,7 @@ class TestSetupDjangoesFunctions(TestCase):
         """Assert indices and index names are replaced by test values."""
         servers = {
             'default': {
-                'ENGINE': 'tests.backend',
+                'ENGINE': 'tests.backend.ConnectionWrapper',
                 'INDICES': ['test_index_1', 'test_index_2']
             }
         }
@@ -42,7 +42,7 @@ class TestSetupDjangoesFunctions(TestCase):
         """Assert server test settings can override globally test indices."""
         servers = {
             'default': {
-                'ENGINE': 'tests.backend',
+                'ENGINE': 'tests.backend.ConnectionWrapper',
                 'INDICES': ['index'],
                 'TEST': {
                     'INDICES': ['override']
@@ -78,7 +78,7 @@ class TestSetupDjangoesFunctions(TestCase):
         """
         servers = {
             'default': {
-                'ENGINE': 'tests.backend',
+                'ENGINE': 'tests.backend.ConnectionWrapper',
                 'INDICES': [],
                 'TEST': {
                     'INDICES': []
@@ -104,11 +104,11 @@ class TestSetupDjangoesFunctions(TestCase):
         """
         servers = {
             'default': {
-                'ENGINE': 'tests.backend',
+                'ENGINE': 'tests.backend.ConnectionWrapper',
                 'INDICES': ['index']
             },
             'copy' : {
-                'ENGINE': 'tests.backend',
+                'ENGINE': 'tests.backend.ConnectionWrapper',
                 'INDICES': ['index']
             }
         }
@@ -137,14 +137,14 @@ class TestSetupDjangoesFunctions(TestCase):
         """Assert server test settings can override globally test indices."""
         servers = {
             'default': {
-                'ENGINE': 'tests.backend',
+                'ENGINE': 'tests.backend.ConnectionWrapper',
                 'INDICES': ['index'],
                 'TEST': {
                     'INDICES': ['override']
                 }
             },
             'copy': {
-                'ENGINE': 'tests.backend',
+                'ENGINE': 'tests.backend.ConnectionWrapper',
                 'INDICES': ['index'],
                 'TEST': {
                     'INDICES': ['override']
@@ -177,7 +177,7 @@ class TestDiscoverRunner(TestCase):
     def test_setup_test_environment(self, base_setup_method):
         servers = {
             'default': {
-                'ENGINE': 'tests.backend',
+                'ENGINE': 'tests.backend.ConnectionWrapper',
                 'INDICES': ['index'],
                 'TEST': {
                     'INDICES': ['override']
