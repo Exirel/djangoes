@@ -1,3 +1,8 @@
+"""Module djangoes.backends provides abstract classes for djangoes backends.
+
+All backends are expecting to subclass these abstract classes and to implement
+their behaviors.
+"""
 from django.utils.functional import cached_property
 
 

@@ -19,7 +19,7 @@ class DiscoverRunner(BaseRunner):
     settings and not the developement/production settings.
 
     When using djangoes in a Django project, it requires to define the settings
-    option `TEST_RUNNER` to `djangoes.test.runner.DjangoesDiscoverRunner` to
+    option `TEST_RUNNER` to `djangoes.test.runner.DiscoverRunner` to
     allow the tests with djangoes and ElasticSearch to work properly.
     """
     def setup_test_environment(self, **kwargs):

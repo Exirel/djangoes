@@ -1,3 +1,11 @@
+"""Connection backends based on the elasticsearch official python library.
+
+This module aims to contain only basic backend classes using the elasticsearch
+official python library and its basics transport classes with few changes.
+
+At the moment it only provides the SimpleHttpBackend, based on the default
+transport class.
+"""
 from elasticsearch.client import Elasticsearch, Transport
 
 from . import Base, MetaClientBase
