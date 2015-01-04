@@ -14,3 +14,17 @@ pylint:
 
 all: test report
 
+
+# Documentation
+# =============
+
+.PHONY: doc
+
+clean_doc:
+	$(MAKE) -C docs clean
+
+build_doc:
+	$(MAKE) -C docs html
+
+doc: clean_doc build_doc
+
