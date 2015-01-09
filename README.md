@@ -36,7 +36,7 @@ ElasticSearch.
 You must use `pip` to install the latest version of `djangoes` and its
 dependencies:
 
-    pip install django elasticsearch djangoes
+    $ pip install django elasticsearch djangoes
 
 If you are not using a virtualenv, you may need to use `pip3` and not `pip` -
 it depends on your Linux distribution and configuration.
@@ -71,24 +71,28 @@ install ElasticSearch using the
 Then I use virtualenv wrapper to create my environment and git to clone the
 github repository:
 
-    mkproject djangoes --python=python3
-    cd djangoes
-    git clone git@github.com:exirel/djangoes
+    $ mkproject --python=/usr/bin/python3.4 djangoes
+    $ cd djangoes
+    $ git clone git@github.com:exirel/djangoes .
 
 Then, you must use pip to install dependencies:
 
-    pip install -r requirements.txt
+    $ pip install -r requirements.txt
 
-Then you can run tests and get coverage and pylint report
+Then you can run tests and get coverage and pylint report:
 
-    make test
-    make report
+    $ make test
+    $ make report
 
 Or, if you are lazy like me:
 
-    make all
+    $ make all
 
 You can build the doc too:
 
-    make doc
+    $ make doc
+
+And browse it (with Firefox for example):
+
+    $ firefox docs/_build/html/index.html
 
