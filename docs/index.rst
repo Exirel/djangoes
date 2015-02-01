@@ -8,6 +8,7 @@ Djangoes documentation
    topics/connections
    topics/queries
    topics/configure
+   topics/backends
    djangoes
 
 .. warning::
@@ -59,7 +60,7 @@ with two news settings, like this::
        }
    }
 
-.. seealso::
+.. seealso:: :doc:`topics/configure`
 
    The :doc:`topics/configure` chapter explains how to configure the
    connections to ElasticSearch in your Django project using ``djangoes``.
@@ -84,7 +85,7 @@ query ElasticSearch::
        result = connection.search(doc_type='entry', body=query)
        return render(request, 'search/results.html', {'results': result})
 
-.. seealso::
+.. seealso:: :doc:`topics/connections`, :doc:`topics/queries`
 
    The :doc:`topics/connections` and :doc:`topics/queries` chapters explain
    how to get a connection and how to perform queries.

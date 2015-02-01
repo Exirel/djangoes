@@ -51,6 +51,11 @@ Settings
           }
       }
 
+   .. seealso:: :doc:`backends`
+
+      The :doc:`backends` chapter gives more information about the available
+      backends, how they work and how to build yours.
+
 
 .. py:data:: ES_INDICES
 

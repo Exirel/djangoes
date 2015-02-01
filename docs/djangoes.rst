@@ -7,6 +7,7 @@ Package documentation
 .. toctree::
    :maxdepth: 2
 
+   djangoes/backends
    djangoes/test
 
 
