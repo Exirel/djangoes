@@ -91,7 +91,7 @@ class Base(object):
 
         This create a list of unique index names, without using their aliases.
         It can be useful to get index names instead of their usage names, as
-        given by `indices`, for example when one wants to create such indices.
+        given by ``indices``, for example when one wants to create them.
         """
         return list(
             set(
@@ -99,12 +99,33 @@ class Base(object):
             )
         )
 
+    def get_alias_names(self):
+        """Build and return the list of alias names.
+
+        This create a list of unique alias names, without using their indices.
+        It can be useful to get alias names instead of their usage names, as
+        given by ``indices`` as it would gives index names when no alias is
+        configured - which is not always what is needed.
+        """
+        return list(
+            set(
+                alias
+                for index in self.server_indices.values()
+                for alias in index['ALIASES']
+            )
+        )
+
     @cached_property
     def indices(self):
-        """Cached property upon get_indices method."""
+        """Cached property upon :meth:`get_indices`."""
         return self.get_indices()
 
     @cached_property
     def index_names(self):
-        """Cached property upon get_index_names method."""
+        """Cached property upon :meth:`get_index_names`."""
         return self.get_index_names()
+
+    @cached_property
+    def alias_names(self):
+        """Cached property upon :meth:`get_alias_names`."""
+        return self.get_alias_names()

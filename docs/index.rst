@@ -71,6 +71,7 @@ query ElasticSearch::
    from django.shortcuts import render
    from djangoes import connection
 
+
    def search_blog_entries(request):
        search_term = request.GET['q']
        query = {
@@ -81,12 +82,13 @@ query ElasticSearch::
            }
        }
        result = connection.search(doc_type='entry', body=query)
-       render(request, 'search/results.html', {'results': result})
+       return render(request, 'search/results.html', {'results': result})
 
 .. seealso::
 
    The :doc:`topics/connections` and :doc:`topics/queries` chapters explain
    how to get a connection and how to perform queries.
+
 
 And finally in your template, you can display the result with this::
 
@@ -99,6 +101,13 @@ And finally in your template, you can display the result with this::
        </article>
    {% endfor %}
 
+Note that this example uses the raw result, without any specific modification.
+It's because ``djangoes`` provides the connection layer only - everything else
+remains up to the developer to decide (for example by using the official DSL
+library, named `elasticsearch-dsl`__).
+
+
+.. __: http://elasticsearch-dsl.readthedocs.org/en/latest/
 
 Indices and tables
 ==================

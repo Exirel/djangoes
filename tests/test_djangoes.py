@@ -415,6 +415,7 @@ class TestConnectionHandler(TestCase):
         assert result.alias == 'default'
         assert result.indices == []
         assert result.index_names == []
+        assert result.alias_names == []
 
     def test_load_backend_with_index(self):
         servers = {
@@ -435,6 +436,7 @@ class TestConnectionHandler(TestCase):
 
         assert sorted(result.indices) == ['alias_1', 'alias_2']
         assert result.index_names == ['index_1']
+        assert sorted(result.alias_names) == ['alias_1', 'alias_2']
 
     def test_load_backend_with_indices(self):
         servers = {
@@ -458,6 +460,7 @@ class TestConnectionHandler(TestCase):
 
         assert sorted(result.indices) == ['alias_1', 'alias_2', 'index_2_name']
         assert sorted(result.index_names) == ['index_1', 'index_2_name']
+        assert sorted(result.alias_names) == ['alias_1', 'alias_2']
 
     # Test loading of backends.elasticsearch
     # ======================================

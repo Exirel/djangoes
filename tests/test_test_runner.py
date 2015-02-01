@@ -8,8 +8,19 @@ from djangoes.test.runner import DiscoverRunner, setup_djangoes
 
 
 class TestSetupDjangoesFunctions(TestCase):
-    def test_setup_elasticsearch(self):
-        """Assert indices and index names are replaced by test values."""
+    """Assert how should behave the ``setup_djangoes`` function.
+
+    This function is the most important part of the test suite using Django and
+    ElasticSearch, as it will perform manipulation of the settings in order to
+    avoid race condition with tests using a real index already used at the same
+    time for its initial purpose.
+    """
+
+    # Assertions about indices, index_names and alias_names.
+    # ======================================================
+
+    def test_setup_elasticsearch_indices(self):
+        """Assert indices are replaced by test values."""
         servers = {
             'default': {
                 'ENGINE': 'tests.backend.ConnectionWrapper',
@@ -38,23 +49,21 @@ class TestSetupDjangoesFunctions(TestCase):
                                        'index_prod_backup_test'])
             assert sorted(conn.indices) == expected_indices
 
-    def test_setup_elasticsearch_global_override(self):
-        """Assert server test settings can override globally test indices."""
+    def test_setup_elasticsearch_indices_with_aliases(self):
+        """Assert indices are replaced by test values."""
         servers = {
             'default': {
                 'ENGINE': 'tests.backend.ConnectionWrapper',
-                'INDICES': ['index'],
-                'TEST': {
-                    'INDICES': ['override']
-                }
+                'INDICES': ['test_index_1', 'test_index_2']
             }
         }
         indices = {
-            'index': {
+            'test_index_1': {
                 'NAME': 'index_prod',
             },
-            'override': {
-                'NAME': 'overridden',
+            'test_index_2': {
+                'NAME': 'index_prod_backup',
+                'ALIASES': ['alias_backup']
             }
         }
 
@@ -62,13 +71,107 @@ class TestSetupDjangoesFunctions(TestCase):
             from djangoes import connections
 
             conn = connections['default']
-            expected_indices = ['index_prod']
+            expected_indices = ['index_prod', 'alias_backup']
             assert sorted(conn.indices) == sorted(expected_indices)
 
             setup_djangoes()
 
-            expected_indices = sorted(['overridden_test'])
+            expected_indices = sorted(['index_prod_test',
+                                       'alias_backup_test'])
             assert sorted(conn.indices) == expected_indices
+
+    def test_setup_elasticsearch_index_names(self):
+        """Assert index names are replaced by test values."""
+        servers = {
+            'default': {
+                'ENGINE': 'tests.backend.ConnectionWrapper',
+                'INDICES': ['test_index_1', 'test_index_2']
+            }
+        }
+        indices = {
+            'test_index_1': {
+                'NAME': 'index_prod',
+            },
+            'test_index_2': {
+                'NAME': 'index_prod_backup',
+            }
+        }
+
+        with override_settings(ES_SERVERS=servers, ES_INDICES=indices):
+            from djangoes import connections
+
+            conn = connections['default']
+            expected_names = ['index_prod', 'index_prod_backup']
+            assert sorted(conn.index_names) == sorted(expected_names)
+
+            setup_djangoes()
+
+            expected_names = sorted(['index_prod_test',
+                                     'index_prod_backup_test'])
+            assert sorted(conn.index_names) == expected_names
+
+    def test_setup_elasticsearch_index_names_with_aliases(self):
+        """Assert index names are replaced by test values even with aliases."""
+        servers = {
+            'default': {
+                'ENGINE': 'tests.backend.ConnectionWrapper',
+                'INDICES': ['test_index_1', 'test_index_2']
+            }
+        }
+        indices = {
+            'test_index_1': {
+                'NAME': 'index_prod',
+                'ALIASES': ['alias_prod']
+            },
+            'test_index_2': {
+                'NAME': 'index_prod_backup',
+            }
+        }
+
+        with override_settings(ES_SERVERS=servers, ES_INDICES=indices):
+            from djangoes import connections
+
+            conn = connections['default']
+            expected_names = ['index_prod', 'index_prod_backup']
+            assert sorted(conn.index_names) == sorted(expected_names)
+
+            setup_djangoes()
+
+            expected_names = sorted(['index_prod_test',
+                                     'index_prod_backup_test'])
+            assert sorted(conn.index_names) == expected_names
+
+    def test_setup_elasticsearch_alias_names(self):
+        """Assert alias names are replaced by test values."""
+        servers = {
+            'default': {
+                'ENGINE': 'tests.backend.ConnectionWrapper',
+                'INDICES': ['test_index_1', 'test_index_2']
+            }
+        }
+        indices = {
+            'test_index_1': {
+                'NAME': 'index_prod',
+                'ALIASES': ['alias_prod']
+            },
+            'test_index_2': {
+                'NAME': 'index_prod_backup',
+                'ALIASES': ['alias_prod_backup']
+            }
+        }
+
+        with override_settings(ES_SERVERS=servers, ES_INDICES=indices):
+            from djangoes import connections
+
+            conn = connections['default']
+            expected_names = ['alias_prod', 'alias_prod_backup']
+            assert sorted(conn.alias_names) == sorted(expected_names)
+
+            setup_djangoes()
+
+            expected_names = sorted(['alias_prod_test',
+                                     'alias_prod_backup_test'])
+            assert sorted(conn.alias_names) == expected_names
 
     def test_setup_elasticsearch_no_test_indices(self):
         """Assert tests can not be set up when settings are invalid.
@@ -129,9 +232,76 @@ class TestSetupDjangoesFunctions(TestCase):
             conn = connections['default']
             conn_copy = connections['copy']
 
-            expected_indices = sorted(['index_test'])
+            expected_indices = ['index_test']
+            assert conn.indices == expected_indices
+            assert conn_copy.indices == expected_indices
+
+    # Assertions about global override.
+    # =================================
+
+    def test_setup_elasticsearch_global_override_indices(self):
+        """Assert server test settings can override globally test indices."""
+        servers = {
+            'default': {
+                'ENGINE': 'tests.backend.ConnectionWrapper',
+                'INDICES': ['index'],
+                'TEST': {
+                    'INDICES': ['override']
+                }
+            }
+        }
+        indices = {
+            'index': {
+                'NAME': 'index_prod',
+            },
+            'override': {
+                'NAME': 'overridden',
+            }
+        }
+
+        with override_settings(ES_SERVERS=servers, ES_INDICES=indices):
+            from djangoes import connections
+
+            conn = connections['default']
+            expected_indices = ['index_prod']
+            assert sorted(conn.indices) == sorted(expected_indices)
+
+            setup_djangoes()
+
+            expected_indices = sorted(['overridden_test'])
             assert sorted(conn.indices) == expected_indices
-            assert sorted(conn_copy.indices) == expected_indices
+
+    def test_setup_elasticsearch_global_override_aliases(self):
+        """Assert server test settings can override globally test aliases."""
+        servers = {
+            'default': {
+                'ENGINE': 'tests.backend.ConnectionWrapper',
+                'INDICES': ['index'],
+                'TEST': {
+                    'INDICES': ['override']
+                }
+            }
+        }
+        indices = {
+            'index': {
+                'NAME': 'index_prod',
+                'ALIASES': ['alias_prod']
+            },
+            'override': {
+                'NAME': 'overridden',
+                'ALIASES': ['alias_overridden']
+            }
+        }
+
+        with override_settings(ES_SERVERS=servers, ES_INDICES=indices):
+            from djangoes import connections
+
+            conn = connections['default']
+            assert conn.indices == ['alias_prod']
+
+            setup_djangoes()
+
+            assert conn.indices == ['alias_overridden_test']
 
     def test_setup_elasticsearch_global_override_reuse_index(self):
         """Assert server test settings can override globally test indices."""

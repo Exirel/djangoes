@@ -37,3 +37,4 @@ def setup_djangoes():
         # Refresh connection's cached properties.
         conn.indices = conn.get_indices()
         conn.index_names = conn.get_index_names()
+        conn.alias_names = conn.get_alias_names()
