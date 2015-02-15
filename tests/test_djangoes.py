@@ -7,7 +7,8 @@ from djangoes import (ConnectionHandler,
                       IndexDoesNotExist,
                       ConnectionDoesNotExist,
                       load_backend)
-from djangoes.backends import Base, elasticsearch
+from djangoes.backends.abstracts import Base
+from djangoes.backends import elasticsearch
 
 
 class TestConnectionHandler(TestCase):

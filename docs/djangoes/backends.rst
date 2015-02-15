@@ -4,7 +4,12 @@ backends
 
 .. automodule:: djangoes.backends
 
-.. autoclass:: djangoes.backends.Base
+backends.abstracts
+==================
+
+.. automodule:: djangoes.backends.abstracts
+
+.. autoclass:: djangoes.backends.abstracts.Base
    :members:
 
    .. attribute:: indices
@@ -37,7 +42,7 @@ backends
       It is particulary useful when aliases need to be created for example.
 
 
-.. autoclass:: djangoes.backends.MetaClientBase
+.. autoclass:: djangoes.backends.abstracts.MetaClientBase
    :members:
 
 
@@ -45,6 +50,7 @@ backends.elasticsearch
 ======================
 
 .. automodule:: djangoes.backends.elasticsearch
+   :members:
 
 .. autoclass:: djangoes.backends.elasticsearch.SimpleHttpBackend
    :members:

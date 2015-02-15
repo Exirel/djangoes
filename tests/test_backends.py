@@ -1,6 +1,6 @@
 from unittest.case import TestCase
 
-from djangoes.backends import Base, MetaClientBase
+from djangoes.backends.abstracts import Base, MetaClientBase
 
 
 class TestBase(TestCase):

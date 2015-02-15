@@ -1,14 +1,20 @@
 """Connection backends based on the elasticsearch official python library.
 
-This module aims to contain only basic backend classes using the elasticsearch
+This module aims to contain only basic backend classes using the ElasticSearch
 official python library and its basics transport classes with few changes.
 
-At the moment it only provides the SimpleHttpBackend, based on the default
-transport class.
+Each backend implements the expected behavior defined in the base class - that
+is to say: they provide methods that don't need to get an index or an alias
+as argument to perform requests (when applicable).
 """
+from django.core.exceptions import ImproperlyConfigured
 from elasticsearch.client import Elasticsearch, Transport
+from elasticsearch.connection.http_urllib3 import Urllib3HttpConnection
+from elasticsearch.connection.http_requests import RequestsHttpConnection
+from elasticsearch.connection.thrift import ThriftConnection
+from elasticsearch.connection.memcached import MemcachedConnection
 
-from . import Base, MetaClientBase
+from .abstracts import Base, MetaClientBase
 
 
 class MetaClient(MetaClientBase):
@@ -49,30 +55,62 @@ class MetaClient(MetaClientBase):
         return self.conn.client.snapshot
 
 
-class SimpleHttpBackend(Base):
-    """Connection wrapper based on the ElasticSearch official library."""
-    transport_class = Transport
+class BaseElasticsearchBackend(Base):
+    """Base connection wrapper based on the ElasticSearch official library.
+
+    It uses two entry points to configure the underlying connection:
+
+    * ``transport_class``: the transport class from ``elasticsearch``. By
+      default ``elasticsearch.transport.Transport``.
+    * ``connection_class``: the connection class used by the transport class.
+      It's undefined by default, as it is on the subclasses to provide one.
+
+    If any of these elements is not defined, an ``ImproperlyConfigured`` error
+    will be raised when the backend will try to configure the client.
+    """
     meta_client_class = MetaClient
+    #: ElasticSearch transport class used by the client class to perform
+    #: requests.
+    transport_class = Transport
+    #: ElasticSearch connection class used by the transport class to perform
+    #: requests.
+    connection_class = None
 
     def __init__(self, alias, server, indices):
-        super(SimpleHttpBackend, self).__init__(alias, server, indices)
+        super(BaseElasticsearchBackend, self).__init__(alias, server, indices)
         self.client = None
 
     def configure_client(self):
         """Instantiate and configure the ElasticSearch client.
 
         It simply takes the given HOSTS list and uses PARAMS as the keyword
-        arguments of the Elasticsearch class.
+        arguments of the ElasticSearch class.
 
         The client's transport_class is given by the class attribute
-        `transport_class`.
+        ``transport_class``, and the connection class used by the transport
+        class is given by the class attribute ``connection_class``.
+
+        An ``ImproperlyConfigured`` exception is raised if any of these
+        elements is undefined.
         """
         hosts = self.server['HOSTS']
         params = self.server['PARAMS']
 
+        if not self.transport_class:
+            raise ImproperlyConfigured(
+                'Djangoes backend %r is not properly configured: '
+                'no transport class provided' % self.__class__)
+
+        if not self.connection_class:
+            raise ImproperlyConfigured(
+                'Djangoes backend %r is not properly configured: '
+                'no connection class provided' % self.__class__)
+
         #pylint: disable=star-args
-        self.client = Elasticsearch(
-            hosts, transport_class=self.transport_class, **params)
+        self.client = Elasticsearch(hosts,
+                                    transport_class=self.transport_class,
+                                    connection_class=self.connection_class,
+                                    **params)
 
     # Server methods
     # ==============
@@ -212,3 +250,30 @@ class SimpleHttpBackend(Base):
 
     def list_benchmarks(self, doc_type=None, **kwargs):
         return self.client.list_benchmarks(self.indices, doc_type, **kwargs)
+
+
+# ElasticSearch backends
+# ======================
+
+class SimpleHttpBackend(BaseElasticsearchBackend):
+    """Connection backend using the ``urllib3`` connection class."""
+    connection_class = Urllib3HttpConnection
+
+
+class SimpleRequestsHttpBackend(BaseElasticsearchBackend):
+    """Connection backend using the HTTP for Human request connection class."""
+    connection_class = RequestsHttpConnection
+
+
+class SimpleThriftBackend(BaseElasticsearchBackend):
+    """Connection backend using the Thrift experimental connection class."""
+    connection_class = ThriftConnection
+
+
+class SimpleMemcachedBackend(BaseElasticsearchBackend):
+    """Connection backend using the Memcache connection class.
+
+    As describe in the ``MemcachedConnection``, a plugin must be installed in
+    the ElasticSearch cluster in order to work.
+    """
+    connection_class = MemcachedConnection

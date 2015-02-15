@@ -1,4 +1,4 @@
-from djangoes.backends import Base
+from djangoes.backends.abstracts import Base
 
 
 class ConnectionWrapper(Base):
