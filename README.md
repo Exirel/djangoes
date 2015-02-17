@@ -1,39 +1,35 @@
 # djangoes
 
-A way to integrate ElasticSearch into a Django project. No, this is not an
-ElasticSearch based ORM.
+Integrates ElasticSearch and Django. Not an ElasticSearch based ORM.
 
-## What is it?
+## Features
 
-* Provide a thread-safe connections handler to ElasticSearch that mimics how
-  databases are configured in Django,
-* Relies on the official ElasticSearch python client,
-* Configure connections and indices separatly,
-* Integration with django tests,
-* Integration with py.test for django,
-
-It wraps the
-[python client for ElasticSearch](https://pypi.python.org/pypi/elasticsearch)
+``djangoes`` wraps the
+[Python client for ElasticSearch](https://pypi.python.org/pypi/elasticsearch)
 with a connections handler and gives an interface to configure and use it for
 production and testing purpose.
 
-[Read the documentation](http://djangoes.readthedocs.org/) online, and do not
-hesitate to send feedback on github.
+* Thread-safe connection handler that mimics Django's ``DATABASES`` handling
+* Uses official ElasticSearch Python client.
+* Connections and indices can be configured separately.
+* Integration with Django's native tests and py.test
 
-## Compatibilities
+Please [read the documentation](http://djangoes.readthedocs.org/), and do not
+hesitate to send feedback on GitHub.
+
+## Compatibility
 
 The current version of `djangoes` works only with Python 3.4 and ElasticSearch
 server >= 1.3.
 
-The versions of django used to test are Django 1.6 and Django 1.7. The version
-of elasticsearch-py used is 1.3.0.
+Django 1.6 and 1.7 are tested, and elasticsearch-py 1.3.0 is used.
 
-There is no plan to support an older version of Python, Django, or
+There are no plans to support older versions of Python, Django, or
 ElasticSearch.
 
 ## Install
 
-You must use `pip` to install the latest version of `djangoes` and its
+Use `pip` to install the latest version of `djangoes` and its
 dependencies:
 
     $ pip install django elasticsearch djangoes
@@ -48,40 +44,42 @@ complicated for some countries). If you are not sure: CC0.
 
 ## Contribute
 
-Djangoes is distributed under the CC0 license, so anyone can contribute:
+`djangoes` is distributed under the CC0 license, so anyone can contribute:
 issues, PR, ideas, proposals, congrats, and tests.
 
-If you want to submit a PR, You need to provide:
+If you want to submit a PR, please also think of the following:
 
-* PEP8 complient source code with docstring,
-* documentation (in docs),
-* unit-tests.
+* PEP8 compliant source code with docstrings,
+* documentation,
+* unit tests.
 
 I'm working on making automated tests on the code that perform requests to
 ElasticSearch, so the current situation is not perfect yet.
 
-### Development environement
+### Development environment
 
-So, if you want to contribute, you need to install a development environement.
-
-You will need to install ElasticSearch and a virtualenv. As a Ubuntu user, I
+If you'd like to contribute, you will need to install ElasticSearch and create 
+a virtualenv. In Ubuntu, you can
 install ElasticSearch using the
 [provided repository](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/setup-repositories.html).
 
-Then I use virtualenv wrapper to create my environment and git to clone the
-github repository:
+Then you can use `virtualenvwrapper` to create the virtualenv and `git` to clone the
+GitHub repository:
 
     $ mkproject --python=/usr/bin/python3.4 djangoes
     $ cd djangoes
     $ git clone git@github.com:exirel/djangoes .
 
-Then, you must use pip to install dependencies:
+Use pip to install dependencies:
 
     $ pip install -r requirements.txt
 
-Then you can run tests and get coverage and pylint report:
+Then you can run the tests:
 
     $ make test
+  
+Or compile a coverage and pylint report:
+
     $ make report
 
 Or, if you are lazy like me:
@@ -91,8 +89,4 @@ Or, if you are lazy like me:
 You can build the doc too:
 
     $ make doc
-
-And browse it (with Firefox for example):
-
-    $ firefox docs/_build/html/index.html
-
+    $ xdg-open docs/_build/html/index.html
