@@ -95,9 +95,8 @@ abstract class, and implement your own methods.
    available backend classes.
 
 A backend is expected to subclass the :class:`djangoes.backends.abstracts.Base`
-class, and to provide a meta client class through the
-:attr:`~djangoes.backends.abstracts.Base.meta_client_class` attribute. Then,
-its ``__init__`` method is expected to accept these three parameters:
+class. Then, its ``__init__`` method is expected to accept these three
+parameters:
 
 * ``alias``: the connection's alias. It is the key used in :data:`ES_SERVERS`
   to configure the connection using this backend.

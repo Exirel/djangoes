@@ -1,6 +1,6 @@
 from unittest.case import TestCase
 
-from djangoes.backends.abstracts import Base, MetaClientBase
+from djangoes.backends.abstracts import Base
 
 
 class TestBase(TestCase):
@@ -174,21 +174,3 @@ class TestBase(TestCase):
         backend = Base('test_backend', {}, test_indices)
 
         assert sorted(backend.alias_names) == ['alias1', 'alias2', 'alias3']
-
-
-class TestMetaClientBase(TestCase):
-    """Make assertions about the behavior of backends.MetaClientBase."""
-    def test_attributes(self):
-        meta_client = MetaClientBase(None)
-
-        with self.assertRaises(AttributeError):
-            meta_client.cluster
-
-        with self.assertRaises(AttributeError):
-            meta_client.indices
-
-        with self.assertRaises(AttributeError):
-            meta_client.snapshot
-
-        with self.assertRaises(AttributeError):
-            meta_client.nodes

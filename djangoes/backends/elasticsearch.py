@@ -14,45 +14,7 @@ from elasticsearch.connection.http_requests import RequestsHttpConnection
 from elasticsearch.connection.thrift import ThriftConnection
 from elasticsearch.connection.memcached import MemcachedConnection
 
-from .abstracts import Base, MetaClientBase
-
-
-class MetaClient(MetaClientBase):
-    """Meta client class for the `elasticsearch` backend.
-
-    Act as a proxy to the internal ElasticSearch client's attributes.
-    """
-    @property
-    def indices(self):
-        """Access to meta API about indices.
-
-        Return the client's indices attribute.
-        """
-        return self.conn.client.indices
-
-    @property
-    def cluster(self):
-        """Access to meta API about cluster.
-
-        Return the client's cluster attribute.
-        """
-        return self.conn.client.cluster
-
-    @property
-    def nodes(self):
-        """Access to meta API about nodes.
-
-        Return the client's nodes attribute.
-        """
-        return self.conn.client.nodes
-
-    @property
-    def snapshot(self):
-        """Access to meta API about snapshot.
-
-        Return the client's snapshot attribute.
-        """
-        return self.conn.client.snapshot
+from .abstracts import Base
 
 
 class BaseElasticsearchBackend(Base):
@@ -68,17 +30,12 @@ class BaseElasticsearchBackend(Base):
     If any of these elements is not defined, an ``ImproperlyConfigured`` error
     will be raised when the backend will try to configure the client.
     """
-    meta_client_class = MetaClient
     #: ElasticSearch transport class used by the client class to perform
     #: requests.
     transport_class = Transport
     #: ElasticSearch connection class used by the transport class to perform
     #: requests.
     connection_class = None
-
-    def __init__(self, alias, server, indices):
-        super(BaseElasticsearchBackend, self).__init__(alias, server, indices)
-        self.client = None
 
     def configure_client(self):
         """Instantiate and configure the ElasticSearch client.

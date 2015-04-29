@@ -27,7 +27,7 @@ class ElasticSearchTestMixin(object):
             for index_name in conn.index_names:
                 if index_name not in index_names:
                     index_names.add(index_name)
-                    conn.meta.indices.create(index_name)
+                    conn.client.indices.create(index_name)
 
     @classmethod
     def delete_connections_indices(cls):
@@ -44,7 +44,7 @@ class ElasticSearchTestMixin(object):
             for index_name in conn.index_names:
                 if index_name not in index_names:
                     index_names.add(index_name)
-                    conn.meta.indices.delete(index_name)
+                    conn.client.indices.delete(index_name)
 
     @classmethod
     def create_connection_indices(cls, conn):
@@ -56,7 +56,7 @@ class ElasticSearchTestMixin(object):
         This method should be called during the setup of the test case.
         """
         for index in conn.index_names:
-            conn.meta.indices.create(index)
+            conn.client.indices.create(index)
 
     @classmethod
     def delete_connection_indices(cls, conn):
@@ -68,4 +68,4 @@ class ElasticSearchTestMixin(object):
         This method should be called during the tear down of the test case.
         """
         for index in conn.index_names:
-            conn.meta.indices.delete(index)
+            conn.client.indices.delete(index)

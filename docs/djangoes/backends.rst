@@ -42,10 +42,6 @@ backends.abstracts
       It is particulary useful when aliases need to be created for example.
 
 
-.. autoclass:: djangoes.backends.abstracts.MetaClientBase
-   :members:
-
-
 backends.elasticsearch
 ======================
 
