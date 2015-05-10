@@ -155,7 +155,8 @@ class TestConnectionHandler(TestCase):
 
         expected_index = {
             'NAME': 'index',
-            'ALIASES': []
+            'ALIASES': [],
+            'SETTINGS': None,
         }
 
         assert index == expected_index
@@ -228,7 +229,8 @@ class TestConnectionHandler(TestCase):
 
         expected_test_index = {
             'NAME': 'index_test',
-            'ALIASES': []
+            'ALIASES': [],
+            'SETTINGS': None,
         }
 
         assert 'TEST' in index
@@ -357,9 +359,11 @@ class TestConnectionHandler(TestCase):
             'used': {
                 'NAME': 'used',
                 'ALIASES': [],
+                'SETTINGS': None,
                 'TEST': {
                     'NAME': 'used_test',
-                    'ALIASES': []
+                    'ALIASES': [],
+                    'SETTINGS': None,
                 }
             }
         }

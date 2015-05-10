@@ -21,7 +21,7 @@ backends.abstracts
 
       For example, if a connection uses 2 indices, one with only the ``index``
       index, and the second one with the ``index_2`` index and an alias
-      `̀ alias``, the result `̀ indices`` will be ``['index', 'alias']``.
+      ``alias``, the result ``indices`` will be ``['index', 'alias']``.
 
    .. attribute:: index_names
 

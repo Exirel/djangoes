@@ -69,6 +69,8 @@ Settings
    * ``NAME``: a ``string``, its index name, by default it will be its
      configuration alias if not explicitly given,
    * ``ALIASES``: a ``list`` of alias names, by default an empty ``list``,
+   * ``SETTINGS``: an optionnal ``dict`` used to describe the index's settings
+     when creating this index.
    * ``TESTS``: a ``dict`` used to configure index when testing.
 
    Example::
@@ -79,6 +81,20 @@ Settings
               'ALIASES': ['index_catalog', 'index_public'],
           }
       }
+
+The ``SETTINGS`` parameter
+--------------------------
+
+Each index can have its own configuration: analyzers, tokenizers, and other
+index-specific settings. ``djangoes`` uses these settings in its test-case
+methods to create the test indices.
+
+You might also use it in your own code thanks to the
+:meth:`~djangoes.backends.abstracts.Base.get_indices_with_settings` method::
+
+   >>> indices_with_settings = connection.get_server_indices()
+   >>> for index_name, settings_body in indices_with_settings.items():
+   ...     connection.client.indices.create(index_name, settings_body)
 
 
 Timeout and retry on error
@@ -138,7 +154,7 @@ Example::
 
    ES_SERVERS = {
        'default': {
-           'hosts': ['host_1', 'host_2']
+           'HOSTS': ['host_1', 'host_2']
            'PARAMS': {
                'timeout': 1,
                'retry_on_timeout': True,

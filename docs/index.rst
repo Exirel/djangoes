@@ -62,8 +62,6 @@ with two news settings, like this::
 
 .. seealso:: :doc:`topics/configure`
 
-   The :doc:`topics/configure` chapter explains how to configure the
-   connections to ElasticSearch in your Django project using ``djangoes``.
 
 Then you can build your first view and use :data:`djangoes.connection` to
 query ElasticSearch::
@@ -85,10 +83,7 @@ query ElasticSearch::
        result = connection.search(doc_type='entry', body=query)
        return render(request, 'search/results.html', {'results': result})
 
-.. seealso:: :doc:`topics/connections`, :doc:`topics/queries`
-
-   The :doc:`topics/connections` and :doc:`topics/queries` chapters explain
-   how to get a connection and how to perform queries.
+.. seealso:: :doc:`topics/connections` and :doc:`topics/queries`
 
 
 And finally in your template, you can display the result with this::

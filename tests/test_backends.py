@@ -62,11 +62,63 @@ class TestBase(TestCase):
 
         assert sorted(backend.indices) == ['alias1', 'alias2', 'index3']
 
+    # Assertions on get_indices_with_settings
+    # =======================================
+
+    def test_get_indices_with_settings(self):
+        """Assert get_indices_with_settings returns the expected dict.
+
+        This method must return a dict with all configured indices as key with
+        their settings as values. Each values can be either ``None`` or a dict,
+        generally used to create the index.
+        """
+        test_indices = {
+            'test_name': {
+                'NAME': 'index',
+                'SETTINGS': {'es': 'settings'}
+            }
+        }
+
+        backend = Base('test_backend', {}, test_indices)
+        indices_with_settings = backend.get_indices_with_settings()
+
+        assert indices_with_settings == {'index': {'es': 'settings'}}
+
+    def test_get_indices_with_settings_none(self):
+        """Assert get_indices_with_settings accepts ``None`` settings."""
+        test_indices = {
+            'test_name': {
+                'NAME': 'index',
+                'SETTINGS': None
+            }
+        }
+
+        backend = Base('test_backend', {}, test_indices)
+        indices_with_settings = backend.get_indices_with_settings()
+
+        assert indices_with_settings == {'index': None}
+
+    def test_get_indices_with_settings_alias(self):
+        """And that index names are used and not alias names."""
+        test_indices = {
+            'test_name': {
+                'NAME': 'index',
+                'ALIASES': ['alias'],
+                'SETTINGS': {'es': 'settings'}
+            }
+        }
+
+        backend = Base('test_backend', {}, test_indices)
+        indices_with_settings = backend.get_indices_with_settings()
+
+        assert 'index' in indices_with_settings
+        assert 'alias' not in indices_with_settings
+
     # Assertions on index_names property
     # ==================================
 
     def test_index_names(self):
-        """Assert index_names return the list of configured indices."""
+        """Assert index_names returns the list of configured indices."""
         test_indices = {
             'test_name_1': {
                 'NAME': 'index1',

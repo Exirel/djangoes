@@ -72,6 +72,19 @@ class Base(object):
             )
         )
 
+    def get_indices_with_settings(self):
+        """Build and return a dict of indices with their settings.
+
+        This create a dict where each key is a index name, and each value is
+        the index key's settings (as used to created the index). It is useful
+        when one wants to create an index with its settings for the given
+        connection.
+        """
+        return {
+            index['NAME']: index['SETTINGS']
+            for index in self.server_indices.values()
+        }
+
     @cached_property
     def indices(self):
         """Cached property upon :meth:`get_indices`."""

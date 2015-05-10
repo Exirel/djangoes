@@ -24,10 +24,10 @@ class ElasticSearchTestMixin(object):
         index_names = set()
 
         for conn in connections.all():
-            for index_name in conn.index_names:
+            for index_name, index_settings in conn.get_indices_with_settings().items():
                 if index_name not in index_names:
                     index_names.add(index_name)
-                    conn.client.indices.create(index_name)
+                    conn.client.indices.create(index_name, index_settings)
 
     @classmethod
     def delete_connections_indices(cls):

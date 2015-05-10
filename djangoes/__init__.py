@@ -1,7 +1,35 @@
-"""The djangoes package contains a simple way to integrate ElasticSearch.
+"""Djangoes package aims to provide a simple way to integrate ElasticSearch.
 
 This package mimics the behavior of the Django database configuration layer,
 using project settings and a global connections handler.
+
+The simplest way to use ``djangoes`` is to import ``djangoes.connection`` and
+to perform queries with it::
+
+   >>> from djangoes import connections
+   >>> conn = connections['conn_name']
+   >>> result = conn.search(...)
+
+The :meth:`ConnectionHandler.load_backend` is called whenever a connection is
+requested in the application, which will then call multiple methods to ensure
+default values and test values.
+
+There is a shortcut to get the default connection::
+
+   >>> from djangoes import connection, connections
+   >>> connection == connections['default']
+   True
+   >>> result = connection.search(...)
+
+It works exactly like getting the ``default`` connection from ``connections``.
+
+.. note::
+
+    This module is based on the ``django.db`` module, which is quite simple in
+    its way to deal with connections. The ``djangoes`` package hope to stay as
+    simple as possible for everyone, and to take benefit from the hard works
+    that make Django a great framework.
+
 """
 from importlib import import_module
 from threading import local
@@ -11,10 +39,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 
 
-__version__ = '0.3.0.dev1'
+__version__ = '0.3.0.dev2'
 
 
-# Name of the default ElasticSearch server connection
+#: Name of the default ElasticSearch server connection
 DEFAULT_ES_ALIAS = 'default'
 
 
@@ -72,6 +100,9 @@ class ConnectionHandler(object):
         self._indices = indices
         self._connections = local()
 
+    # Properties
+    # ----------
+
     @cached_property
     def servers(self):
         """Dict of servers configuration.
@@ -126,6 +157,9 @@ class ConnectionHandler(object):
 
         return self._indices
 
+    # Ensure default values
+    # ---------------------
+
     def ensure_server_defaults(self, alias):
         """Put the defaults into the settings dictionary for `alias`."""
         try:
@@ -148,6 +182,10 @@ class ConnectionHandler(object):
 
         index.setdefault('NAME', alias)
         index.setdefault('ALIASES', [])
+        index.setdefault('SETTINGS', None)
+
+    # Prepare test values
+    # -------------------
 
     def prepare_server_test_settings(self, alias):
         """Make sure the test settings are available in `TEST`."""
@@ -190,14 +228,22 @@ class ConnectionHandler(object):
                     'ALIASES and in TEST\'s ALIASES settings: \'%s\'.'
                     % (alias, test_alias_name))
 
+        # Index settings are kept for testing purpose as it is related to the
+        # content and not the test configuration to access/request documents
+        # in the index.
+        test_settings.setdefault('SETTINGS', index['SETTINGS'])
+
+    # Utility
+    # -------
+
     def get_server_indices(self, server):
         """Prepare and return a given server's indices settings.
 
-        Do not validate if the given server is available in self.servers: it
-        is expected to find an `INDICES` key into `server` and that is all.
+        Do not validate if the given server is available in ``self.servers``:
+        it is expected to find an ``INDICES`` key into `server` and that's all.
 
         It is expected to find indices configured with the same name in
-        self.indices.
+        ``self.indices``.
         """
         indices = server['INDICES']
 
@@ -221,6 +267,9 @@ class ConnectionHandler(object):
         backend_class = load_backend(server['ENGINE'])
 
         return backend_class(alias, server, indices)
+
+    # Magic methods
+    # -------------
 
     def __getitem__(self, alias):
         if hasattr(self._connections, alias):
@@ -253,29 +302,37 @@ class ConnectionHandler(object):
         return [self[alias] for alias in self]
 
 
+#: Global connections handler for ``djangoes``.
+#: One can import ``djangoes.connections`` and ask for a connection that will
+#: be thread safe and configured through the project settings.
 connections = ConnectionHandler()  #pylint: disable=invalid-name
 
 
-class DefaultConnectionProxy(object):
-    """Proxy for the default ConnectionWrapper's attributes.
+class ConnectionProxy(object):
+    """Proxy for the default ``ConnectionWrapper``'s attributes.
 
-    This class is based on django.db.DefaultConnectionProxy used for the
+    This class is based on ``django.db.DefaultConnectionProxy`` used for the
     default database.
     """
+    def __init__(self, alias):
+        self.__dict__['alias'] = alias or DEFAULT_ES_ALIAS
+
     def __getattr__(self, item):
-        return getattr(connections[DEFAULT_ES_ALIAS], item)
+        return getattr(connections[self.__dict__['alias']], item)
 
     def __setattr__(self, name, value):
-        return setattr(connections[DEFAULT_ES_ALIAS], name, value)
+        return setattr(connections[self.__dict__['alias']], name, value)
 
     def __delattr__(self, name):
-        return delattr(connections[DEFAULT_ES_ALIAS], name)
+        return delattr(connections[self.__dict__['alias']], name)
 
     def __eq__(self, other):
-        return connections[DEFAULT_ES_ALIAS] == other
+        return connections[self.__dict__['alias']] == other
 
     def __ne__(self, other):
-        return connections[DEFAULT_ES_ALIAS] != other
+        return connections[self.__dict__['alias']] != other
 
 
-connection = DefaultConnectionProxy()  #pylint: disable=invalid-name
+#: Default connection to ElasticSearch.
+#: This is equivalent to call ``djangoes.connections['default']``.
+connection = ConnectionProxy(DEFAULT_ES_ALIAS)  #pylint: disable=invalid-name

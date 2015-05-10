@@ -9,12 +9,13 @@ Connections to ElasticSearch
 
 The :mod:`djangoes` package provides a simple way to use and to access the
 default connection to your ElasticSearch server. In any of your python file of
-your django project, simply import :obj:`~djangoes.connection` like this::
+your Django project, simply import :obj:`~djangoes.connection` like this::
 
    from djangoes import connection
 
 Then in any function or method you need to perform a query, you can use the
-methods from the ElasticSearch python library::
+methods from the ElasticSearch python library by using this ``connection``
+object::
 
    def search_blog_entries(words):
        """Search for all blog entries with ``words`` found in entry body."""
@@ -48,7 +49,9 @@ default connection, simply named ``default``::
    >>> connection == connections['default']
    True
 
-Using ``connection`` or ``connections`` is thread-safe, but you should never
-use a connection object itself in multiple thread. If you need to pass a
-connection from one thread to another, simply use its alias and get it using
-``connections[alias]``.
+.. warning::
+
+   Using ``connection`` or ``connections`` is **thread-safe**, but you should
+   never use a connection object itself in multiple threads. If you need to
+   "share" a connection from one thread to another, simply use its alias and
+   get it using ``connections[alias]`` into the threaded code.

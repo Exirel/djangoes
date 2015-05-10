@@ -12,6 +12,5 @@ def pytest_runtest_setup(item):
     value, ie. an empty instance of djangoes.ConnectionHandler.
     """
     import djangoes
-    from djangoes import ConnectionHandler
 
-    djangoes.connections = ConnectionHandler()
+    djangoes.connections = djangoes.ConnectionHandler()
