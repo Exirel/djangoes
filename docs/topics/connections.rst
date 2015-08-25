@@ -49,9 +49,18 @@ default connection, simply named ``default``::
    >>> connection == connections['default']
    True
 
-.. warning::
 
-   Using ``connection`` or ``connections`` is **thread-safe**, but you should
-   never use a connection object itself in multiple threads. If you need to
-   "share" a connection from one thread to another, simply use its alias and
-   get it using ``connections[alias]`` into the threaded code.
+Threading and multiprocessing
+=============================
+
+Using ``connection`` or ``connections`` is **thread-safe**, but you should
+never use a connection object itself in multiple threads. If you need to
+"share" a connection from one thread to another, simply use its alias and get
+it using ``connections[alias]`` into the threaded code.
+
+The same way, you shoulw **never** share a connection object between multiple
+process (either with multiprocessing or forking), and instead use the
+``connection`` shortcut or ``connections[alias]`` to get any connection.
+
+Connection's methods are not thread or multi-process safe by themselves, and an
+unappropriate usage may end in unexpected behavior.

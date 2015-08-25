@@ -557,6 +557,36 @@ class TestConnectionHandler(TestCase):
 
         assert sorted([c.alias for c in all_connections]) == ['default', 'task']
 
+    def test_check_for_multiprocess(self):
+        """Assert method will reset connections with a different PID.
+
+        .. note::
+
+            We don't really test "multi-processing" behavior. We are only
+            messing with a flag here to test connections reset.
+
+        """
+        servers = {
+            'default': {
+                'HOSTS': ['localhost']
+            }
+        }
+
+        handler = ConnectionHandler(servers, {})
+
+        conn = handler['default']
+        conn_again = handler['default']
+
+        assert conn is conn_again
+        assert id(conn) == id(conn_again)
+
+        # Changing the PID to "reset" connections.
+        handler._pid = 1
+        conn_again = handler['default']
+
+        assert conn is not conn_again
+        assert id(conn) != id(conn_again)
+
 
 class TestProxyConnectionHandler(TestCase):
     def test_attributes(self):

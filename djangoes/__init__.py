@@ -32,6 +32,7 @@ It works exactly like getting the ``default`` connection from ``connections``.
 
 """
 from importlib import import_module
+import os
 from threading import local
 
 from django.conf import settings
@@ -39,7 +40,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 
 
-__version__ = '0.3.0.dev2'
+__version__ = '0.3.0.dev3'
 
 
 #: Name of the default ElasticSearch server connection
@@ -99,6 +100,7 @@ class ConnectionHandler(object):
         self._servers = servers
         self._indices = indices
         self._connections = local()
+        self._pid = os.getpid()
 
     # Properties
     # ----------
@@ -268,10 +270,32 @@ class ConnectionHandler(object):
 
         return backend_class(alias, server, indices)
 
+    def check_for_multiprocess(self):
+        """
+        Reset connections if PID has changed.
+
+        When using multi-processing (or fork), one may want to use a connection
+        already used by the main process. Therefore, we need to make sure we
+        are not sharing connections between multiple process.
+
+        This could happen because a fork on Linux won't copy an object after a
+        fork until it is modified. The read-only mode will "share" connections
+        and that's not what we want.
+
+        """
+        current_pid = os.getpid()
+
+        if current_pid != self._pid:
+            # PID is different, we need to reset all the previous connections.
+            self._pid = current_pid
+            self._connections = local()
+
     # Magic methods
     # -------------
 
     def __getitem__(self, alias):
+        self.check_for_multiprocess()
+
         if hasattr(self._connections, alias):
             # Returns cached instance
             return getattr(self._connections, alias)
