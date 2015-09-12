@@ -12,8 +12,7 @@ class ElasticSearchTestMixin(object):
     This mixin must be combined with a TestCase and its methods should be used
     in the set-up/tear down process of test cases.
     """
-    @classmethod
-    def create_connections_indices(cls):
+    def create_connections_indices(self):
         """Create indices for all configured connections.
 
         Convenient method to create indices for all configured ElasticSearch
@@ -29,8 +28,7 @@ class ElasticSearchTestMixin(object):
                     index_names.add(index_name)
                     conn.client.indices.create(index_name, index_settings)
 
-    @classmethod
-    def delete_connections_indices(cls):
+    def delete_connections_indices(self):
         """Delete indices for all configured connections.
 
         Convenient method to delete indices for all configured ElasticSearch
@@ -46,8 +44,7 @@ class ElasticSearchTestMixin(object):
                     index_names.add(index_name)
                     conn.client.indices.delete(index_name)
 
-    @classmethod
-    def create_connection_indices(cls, conn):
+    def create_connection_indices(self, conn):
         """Create indices for the given connection.
 
         Convenient method to create indices used by an ElasticSearch
@@ -58,8 +55,7 @@ class ElasticSearchTestMixin(object):
         for index in conn.index_names:
             conn.client.indices.create(index)
 
-    @classmethod
-    def delete_connection_indices(cls, conn):
+    def delete_connection_indices(self, conn):
         """Delete indices for the given connection.
 
         Convenient method to delete indices used by an ElasticSearch
