@@ -37,14 +37,19 @@ It works exactly like getting the ``default`` connection from ``connections``.
 
 """
 from .handlers.connections import ConnectionHandler, DEFAULT_CONNECTION_ALIAS
+from .handlers.indices import IndexHandler, DEFAULT_INDEX_ALIAS
 
 __version__ = '0.3.0'
+
+
+#: Global indices handler for ``djangoes``.
+indices = IndexHandler(ConnectionHandler())
 
 
 #: Global connections handler for ``djangoes``.
 #: One can import ``djangoes.connections`` and ask for a connection that will
 #: be thread safe and configured through the project settings.
-connections = ConnectionHandler()  #pylint: disable=invalid-name
+connections = indices.connections  #pylint: disable=invalid-name
 
 
 class ConnectionProxy(object):
