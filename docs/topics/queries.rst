@@ -89,7 +89,7 @@ Advanced usage
 To perform any advanced queries, such as getting the list of aliases for an
 index, the ``client`` attribute is available on each connection: it is the
 underlying client implementation, ie. an instance of
-``from elasticsearch.client.Elasticsearch``.
+``elasticsearch.client.Elasticsearch``.
 
 .. warning::
 

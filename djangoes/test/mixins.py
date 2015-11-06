@@ -23,7 +23,8 @@ class ElasticSearchTestMixin(object):
         index_names = set()
 
         for conn in connections.all():
-            for index_name, index_settings in conn.get_indices_with_settings().items():
+            items = conn.get_indices_with_settings().items()
+            for index_name, index_settings in items:
                 if index_name not in index_names:
                     index_names.add(index_name)
                     conn.client.indices.create(index_name, index_settings)
