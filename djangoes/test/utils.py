@@ -31,7 +31,7 @@ def setup_djangoes():
         for indices in conn.server_indices.values():
             indices.update({
                 'NAME': indices['TEST']['NAME'],
-                'ALIASES': indices['TEST']['ALIASES']
+                'ALIASES': indices['TEST']['ALIASES'],
             })
 
         # Refresh connection's cached properties.

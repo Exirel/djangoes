@@ -1,5 +1,4 @@
 """Handlers for connections."""
-from importlib import import_module
 import os
 from threading import local
 
@@ -7,38 +6,13 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.functional import cached_property
 
+from djangoes.exceptions import ConnectionDoesNotExist, IndexDoesNotExist
+
+from .utils import load_backend
+
 
 #: Name of the default ElasticSearch server connection
 DEFAULT_CONNECTION_ALIAS = 'default'
-
-
-def load_backend(backend_class_path):
-    """Import the given `backend_class_path` class and return it.
-
-    This is a convenient function that raises a specific error message when
-    the import of the `backend_class_path` raises an ImportError or an
-    AttributeError.
-    """
-    parts = backend_class_path.split('.')
-    backend_module, backend_class = '.'.join(parts[:-1]), parts[-1]
-
-    try:
-        return getattr(import_module(backend_module), backend_class)
-    except (AttributeError, ImportError) as e_user:
-        error_msg = ("%r isn't an available ElasticSearch backend.\n"
-                     "Error was: %s" %
-                     (backend_class_path, e_user))
-        raise ImproperlyConfigured(error_msg)
-
-
-class ConnectionDoesNotExist(KeyError):
-    """Specific type of KeyError when a connection does not exist."""
-    pass
-
-
-class IndexDoesNotExist(KeyError):
-    """Specific type of KeyError when an index does not exist."""
-    pass
 
 
 class ConnectionHandler(object):
