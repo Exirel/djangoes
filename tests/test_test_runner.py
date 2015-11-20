@@ -173,6 +173,103 @@ class TestSetupDjangoesFunctions(TestCase):
                                      'alias_prod_backup_test'])
             assert sorted(conn.alias_names) == expected_names
 
+    def test_setup_elasticsearch_settings(self):
+        """Assert index test settings are get from initial values."""
+        servers = {
+            'default': {
+                'ENGINE': 'tests.backend.ConnectionWrapper',
+                'INDICES': ['test_index']
+            }
+        }
+        indices = {
+            'test_index': {
+                'NAME': 'index_prod',
+                'ALIASES': ['alias_prod'],
+                'SETTINGS': {
+                    'index': {
+                        'number_of_replicas': 1
+                    }
+                }
+            }
+        }
+
+        with override_settings(ES_SERVERS=servers, ES_INDICES=indices):
+            from djangoes import connections
+
+            conn = connections['default']
+            index_settings = conn.get_indices_with_settings()
+
+            assert 'index_prod' in index_settings
+            assert index_settings['index_prod'] == {
+                'index': {
+                    'number_of_replicas': 1
+                }
+            }
+
+            setup_djangoes()
+
+            index_settings = conn.get_indices_with_settings()
+
+            assert 'index_prod' not in index_settings
+            assert 'index_prod_test' in index_settings
+            assert index_settings['index_prod_test'] == {
+                'index': {
+                    'number_of_replicas': 1
+                }
+            }
+
+    def test_setup_elasticsearch_settings_with_settings(self):
+        """Assert index settings are replaced by test values."""
+        servers = {
+            'default': {
+                'ENGINE': 'tests.backend.ConnectionWrapper',
+                'INDICES': ['test_index']
+            }
+        }
+        indices = {
+            'test_index': {
+                'NAME': 'index_prod',
+                'ALIASES': ['alias_prod'],
+                'SETTINGS': {
+                    'index': {
+                        'number_of_replicas': 1
+                    }
+                },
+                'TEST': {
+                    'SETTINGS': {
+                        'index': {
+                            'number_of_replicas': 0
+                        }
+                    },
+                }
+            }
+        }
+
+        with override_settings(ES_SERVERS=servers, ES_INDICES=indices):
+            from djangoes import connections
+
+            conn = connections['default']
+            index_settings = conn.get_indices_with_settings()
+
+            assert 'index_prod' in index_settings
+            assert index_settings['index_prod'] == {
+                'index': {
+                    'number_of_replicas': 1
+                }
+            }
+
+            setup_djangoes()
+
+            index_settings = conn.get_indices_with_settings()
+
+            assert 'index_prod' not in index_settings
+            assert 'index_prod_test' in index_settings
+            assert index_settings['index_prod_test'] == {
+                'index': {
+                    'number_of_replicas': 0
+                }
+            }
+
     def test_setup_elasticsearch_no_test_indices(self):
         """Assert tests can not be set up when settings are invalid.
 
