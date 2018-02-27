@@ -14,4 +14,5 @@ def pytest_runtest_setup(item):
     """
     import djangoes
 
-    djangoes.connections = djangoes.ConnectionHandler()
+    djangoes.indices = djangoes.IndexHandler(djangoes.ConnectionHandler())
+    djangoes.connections = djangoes.indices.connections

@@ -14,6 +14,24 @@ class Index:
     def __init__(self, alias, configuration, connection):
         self.alias = alias
 
+    @property
+    def single_op_index(self):
+        return self.configuration['NAME']
+
+    @property
+    def search_index(self):
+        return self.configuration['NAME']
+
+    def get(self, doc_id, doc_type):
+        self.connection.get(doc_id,
+                            doc_type=doc_type,
+                            index=self.single_op_index)
+
+    def search(self, doc_type=None, body=None):
+        self.connection.search(self.search_index,
+                               doc_type=doc_type,
+                               body=body)
+
 
 class IndexHandler:
     def __init__(self, connections, indices=None):
@@ -63,6 +81,45 @@ class IndexHandler:
         es_index.setdefault('NAME', alias)
         es_index.setdefault('ALIASES', [])
         es_index.setdefault('SETTINGS', None)
+
+    def prepare_index_test_settings(self, alias):
+        """Make sure the test settings are available in `TEST`."""
+        try:
+            es_index = self.indices[alias]
+        except KeyError:
+            raise IndexDoesNotExist(alias)
+
+        test_settings = es_index.setdefault('TEST', {})
+
+        # By default we keep the same test handler, no need to change that.
+        test_settings.setdefault('HANDLER', es_index['HANDLER'])
+
+        # Handle the TEST's NAME
+        name = es_index['NAME']
+        test_name = test_settings.setdefault('NAME', '%s_test' % name)
+
+        if test_name == name:
+            raise ImproperlyConfigured(
+                'Index \'%s\' uses improperly the same NAME and TEST\'s NAME '
+                'settings: \'%s\'.' % (alias, name))
+
+        # Handle the TEST's ALIASES
+        aliases = es_index['ALIASES']
+        test_aliases = test_settings.setdefault('ALIASES',
+                                                ['%s_test' % alias_name
+                                                 for alias_name in aliases])
+
+        for test_alias_name in test_aliases:
+            if test_alias_name in aliases:
+                raise ImproperlyConfigured(
+                    'Index \'%s\' uses improperly the same index alias in '
+                    'ALIASES and in TEST\'s ALIASES settings: \'%s\'.'
+                    % (alias, test_alias_name))
+
+        # Index settings are kept for testing purpose as it is related to the
+        # content and not the test configuration to access/request documents
+        # in the index.
+        test_settings.setdefault('SETTINGS', es_index['SETTINGS'])
 
     def load_index(self, alias):
         self.ensure_index_defaults(alias)
