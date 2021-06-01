@@ -14,4 +14,4 @@ pylint==1.4.0
 pytest==2.6.4
 pytest-cov==1.8.1
 six==1.8.0
-urllib3==1.9.1
+urllib3==1.26.5
